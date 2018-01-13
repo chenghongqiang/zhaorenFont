@@ -11,6 +11,7 @@ function getServerUrl() {
 function request(route, method, data, success, fail, other) {
 	accessToken = wx.getStorageSync(server + 'token');
 	let args = arguments;
+	console.log('accessToken:' + accessToken);
 	if (accessToken == '') {
 		new Login().init();//登录
 		return;

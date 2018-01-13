@@ -32,11 +32,11 @@
 </template>
 
 <script>
-import wepy from "wepy";
+import wx from "wepy";
 import request from "../utils/request.js";
 import mixin from "../mixins/redux";
 
-export default class extends wepy.page {
+export default class extends wx.page {
   data = {
     inviteRewardTaskList: [], //提现记录
     curPage: 0,
@@ -60,19 +60,19 @@ export default class extends wepy.page {
     that.curPage = 0;
     that.inviteRewardRecords = [];
     that.$apply();
-    that.send_PackageList_req();
+    that.sendPackageListReq();
   }
-  send_PackageList_req() {
+  sendPackageListReq() {
     //发起请求
-    let that = this,
-      newPage = that.curPage - 0 + 1,
-      list = [];
+    let that = this;
+    let newPage = that.curPage - 0 + 1;
+    let list = [];
     let sign = that.remslik(); //防止多次触发
     if (!sign) {
       return;
     }
     request.request(
-      "App.Find_Wallet.GetWalletWithdrawRecord",
+      "App.Find_WalletWithdrawRecord.GetWithdrawRecord",
       "POST",
       {},
       res => {

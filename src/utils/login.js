@@ -122,7 +122,7 @@ pt.addUser = function (parm) {
 		},
 		fail: (err) => {
 			wx.showToast({
-				title: 'addUser'
+				title: '系统故障，请联系管理员'
 			})
 		}
 	})

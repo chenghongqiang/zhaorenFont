@@ -13,7 +13,7 @@
     <view class='menu'>
         <view class='menu-item' @tap='toWithdrawCash'>
             <view class='mi-left'>
-                <image src='../assets/images/packet.png' style="width:50rpx; height: 50rpx;"/>
+                <image src='../assets/images/packet.png' style="width:50rpx; height: 60rpx;"/>
                 <view class='miText'>钱包</view>
             </view>
             <view class='mi-right'>
@@ -22,7 +22,7 @@
         </view>
         <view class='menu-item' style="position: relative" @tap='toHistory'>
             <view class='mi-left'>
-                <image src='../assets/images/find-history.png' style="width:50rpx; height: 50rpx;"/>
+                <image src='../assets/images/find-history.png' style="width:50rpx; height: 60rpx;"/>
                 <view class='miText'>找人记录</view>
             </view>
             <view class='mi-right'>
@@ -31,7 +31,7 @@
         </view>
         <view class='menu-item' style="position: relative" @tap="toAbout">
             <view class='mi-left'>
-                <image src='../assets/images/about.png' style="width:50rpx; height: 50rpx;"/>
+                <image src='../assets/images/about.png' style="width:50rpx; height: 60rpx;"/>
                 <view class='miText'>关于帮忙找人</view>
             </view>
             <view class='mi-right'>
@@ -61,7 +61,7 @@ export default class My extends wepy.page {
     stitle: "detail/stitle@2x.png",
     userInfo: {
       headimgurl: "../assets/images/avatar.png",
-      nickname: "加载中..."
+      nickname: "帮忙找人 "
     },
     shareSign: false,
     inviteEnable: false,
@@ -108,25 +108,15 @@ export default class My extends wepy.page {
       that.$apply();
     }
   };
-  onShow() {}
-
+  onShow() {
+     let that = this;
+     that.userInfo.balance = 0;
+     that.$apply();
+  }
   onLoad(options) {
     // 处理 sharke 动画
     let that = this;
     that.getUserInfo();
-    setTimeout(function() {
-      that.isAnimate = true;
-      that.$apply();
-    }, 500);
-
-    setInterval(function() {
-      that.isAnimate = false;
-      that.$apply();
-      setTimeout(function() {
-        that.isAnimate = true;
-        that.$apply();
-      }, 100);
-    }, 3000);
 
     // 处理转赠的 卡片
     if (options && options.shareId && options.type) {
@@ -140,6 +130,7 @@ export default class My extends wepy.page {
   getUserInfo() {
     let that = this;
     http.request("App.Find_User.GetUserProfile", "POST", {}, (res) => {
+      console.log('getUserPorfile:' + res);
       that.userInfo.headimgurl = res.avatarUrl;
       that.userInfo.nickname = res.nickName;
       that.userInfo.balance = res.wallet;
@@ -257,7 +248,7 @@ page {
     margin-right: 10rpx;
   }
   .miText {
-    font-size: 28rpx;
+    font-size: 30rpx;
   }
   .mi-right {
     .flex();

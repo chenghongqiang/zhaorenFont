@@ -6,9 +6,9 @@ export default class extends wepy.app {
   config = {
     pages: [
       "pages/index",
-      "pages/my",
       "pages/find",
       "pages/referrer",
+      "pages/my",
       "pages/about", //关于页面
       "pages/history", //找人记录
       "pages/withdrawCash", //提现
