@@ -1,0 +1,156 @@
+<template>
+    <view class="box" style="background:#f1f1f1;">
+        <view class="rule" @tap="toRule">找人规则</view>
+        <view class="row">
+            <image class="selfAvatar" src="{{creatorAvatar}}" style="border-radius:50%; z-index:12;"/>
+            <image class="selfAvatar" src="{{avatar}}" style="border-radius:50%;"/>
+            <image class="introducerAvatar" src="{{introAvatar}}" style="border-radius:50%; z-index:12;"/>
+            <image class="introducerAvatar" src="{{avatar}}" style="border-radius:50%;"/>
+            <image class="introduceredAvatar" src="{{introedAvatar}}" style="border-radius:50%; z-index:12;"/>
+            <image class="introduceredAvatar" src="{{avatar}}" style="border-radius:50%;"/>
+            <image class="find-banner" src="../assets/images/find_banner.png"/>
+        </view>
+    </view>
+    <view class="modal" wx:if="{{ruleModal}}">
+        <view class="rule" >
+            <view class="ruleItem">找人规则</view>
+            <view class="ruleItem">1、找人有效期是24小时，引荐不成功红包退回钱包；</view>
+            <view class="ruleItem">2、引荐成功后1小时，引荐人和被引荐人平分红包；</view>
+            <view class="ruleItem">3、加不了微信、引荐的人不匹配可申述退回红包；</view>
+            <view class="ruleItem">4、领取的红包在钱包里面提现。</view>
+            <view class="ruleClose">
+                <icon type="cancel" size="40" @tap="toClose"/>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+import wx from 'wepy'
+import mixin from '../mixins/redux'
+export default class findFlow extends wx.component {
+    mixins = [mixin]
+    data = {
+        ruleModal: !1,
+        creatorAvatar:'',
+        avatar: '../assets/images/avatar.png',
+        userInfo: {
+            headimgurl: '',
+            nickname: ''
+        }
+    }
+    props = {
+        // 组件双向数据绑定
+        creatorAvatar: {
+            type: String,
+            twoWay: true,
+            default: 'null'
+        },
+        introAvatar: {
+            type: String,
+            twoWay: true,
+            default: 'null'
+        },
+        introedAvatar: {
+            type: String,
+            twoWay: true,
+            default: 'null'
+        }
+    }
+    methods = {
+        toRule() {
+            this.ruleModal = !0
+        },
+        toClose() {
+            this.ruleModal = !1
+        }
+    }
+}
+</script>
+
+<style lang="less">
+page {
+    .box {
+      position: relative;
+      .rule {
+        width: 150rpx;
+        height: 50rpx;
+        line-height: 50rpx;
+        text-align: center;
+        font-size: 28rpx;
+        position: absolute;
+        top: 18rpx;
+        right: 0;
+        color: #fff;
+        background: #FFAF15;
+        border-radius: 50rpx 0 0 50rpx;
+        padding-left: 10rpx;
+      }
+      .row {
+          width: 95%;
+          height: 300rpx;
+          margin: 0 auto;
+          .selfAvatar{
+              width: 90rpx;
+              height: 90rpx;
+              position: absolute;
+              top: 26.000%;
+              left: 8.000%;
+              z-index: 11;
+          }
+          .introducerAvatar{
+              width: 90rpx;
+              height: 90rpx;
+              position: absolute;
+              top: 26.000%;
+              left: 44.000%;
+              z-index: 11;
+          }
+          .introduceredAvatar{
+              width: 90rpx;
+              height: 90rpx;
+              position: absolute;
+              top: 26.000%;
+              left: 80.000%;
+              z-index: 11;
+          }
+          .find-banner{
+              width: 100%;
+              height: 100%;
+          }
+      }
+    }
+    .modal{
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        left: 0;
+        top: 0;
+        background-color: rgba(0,0,0,0.6);
+        z-index: 100;
+        display: flex;
+        align-items:center; 
+        justify-content:center;
+        .rule{
+            width: 75%;
+            height: 50%;
+            background: #fff;
+            font-size: 28rpx;
+            border-radius: 20rpx;
+            padding: 55rpx;
+            .ruleItem{
+                margin-bottom: 20rpx;
+                &:nth-child(1){
+                    text-align: center;
+                    font-size: 32rpx;
+                    font-weight: bold;
+                }
+            }
+            .ruleClose{
+                text-align: center;
+                margin-top: 75rpx;
+            }
+        }
+    }
+}
+</style>

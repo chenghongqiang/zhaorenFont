@@ -1,0 +1,173 @@
+<template>
+    <view class="container">
+        <view class="top">
+            <image class="topImg" src="../assets/images/index_top.png"/>
+        </view>
+        <view class="box" @tap="toFind">
+            <view class="left">
+                <image class="leftImg" src="../assets/images/index_01.png"/>
+            </view>
+            <view class="right">
+                <view class="rightA">我要找人</view>
+                <view class="rightB">包个红包</view>
+            </view>
+        </view>
+        <view class="box" @tap="toReferrer">
+            <view class="left">
+                <image class="leftImg" src="../assets/images/index_02.png"/>
+            </view>
+            <view class="right">
+                <view class="rightA">给TA推荐</view>
+                <view class="rightB">领红包</view>
+            </view>
+        </view>
+    </view>
+</template>
+
+<script>
+import wx from "wepy";
+import config from "../config";
+import Login from "../utils/login.js";
+export default class extends wx.page {
+  config = {
+    navigationBarTitleText: "帮忙找人"
+  };
+  data = {
+    version: config.version
+  };
+  methods = {
+    toFind() {
+      let that = this;
+      wx.getUserInfo({
+        success: () => {
+          if (!wx.getStorageSync(config.env + "_addUser")) {
+            new Login().getUserInfo(); //登录
+          }
+          wx.navigateTo({
+            url: "/pages/find"
+          });
+        },
+        fail: () => {
+          wx.showModal({
+            content: "需要授权用户信息才可进入哦",
+            confirmText: "前往授权",
+            showCancel: true,
+            success(res) {
+              if (res.confirm && wx.openSetting) {
+                wx.openSetting({
+                  success: function(res) {
+                    if (!res.authSetting["scope.userInfo"]) {
+                      wx.authorize({
+                        scope: "scope.userInfo",
+                        success() {
+                          that.methods.toFind.call(that);
+                        }
+                      });
+                    }
+                  }
+                });
+              } else if (res.cancel) {
+                that.methods.toFind.call(that);
+              }
+            }
+          });
+        }
+      });
+    },
+    toReferrer() {
+      let that = this;
+      wx.getUserInfo({
+        success: () => {
+          new Login().init(); //登录
+          wx.navigateTo({
+            url: "/pages/referrer"
+          });
+        },
+        fail: () => {
+          wx.showModal({
+            content: "需要授权用户信息才可进入哦",
+            confirmText: "前往授权",
+            showCancel: true,
+            success(res) {
+              if (res.confirm && wx.openSetting) {
+                wx.openSetting({
+                  success: function(res) {
+                    if (!res.authSetting["scope.userInfo"]) {
+                      wx.authorize({
+                        scope: "scope.userInfo",
+                        success() {
+                          that.methods.toReferrer();
+                        }
+                      });
+                    }
+                  }
+                });
+              } else if (res.cancel) {
+                that.methods.toReferrer();
+              }
+            }
+          });
+        }
+      });
+    }
+  };
+}
+</script>
+
+<style lang="less">
+page {
+  background: #f3f3f7;
+  .container {
+    position: relative;
+    padding: 20rpx;
+    color: #3d516c;
+    .top {
+      width: 691rpx;
+      height: 158rpx;
+      text-align: center;
+      margin: 5rpx auto -20rpx auto;
+      .topImg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .box {
+      .left {
+        .leftImg {
+          width: 286rpx;
+          height: 286rpx;
+        }
+        width: 45%;
+      }
+      .right {
+        .rightA {
+          font-size: 52rpx;
+          color: #264466;
+        }
+        .rightB {
+          font-size: 32rpx;
+          color: #8d8d8d;
+        }
+        width: 55%;
+        padding-top: 60rpx;
+        padding-left: 35rpx;
+      }
+      display: flex;
+      position: relative;
+      width: 660rpx;
+      height: 272rpx;
+      background: #fff;
+      margin: 30rpx auto;
+      border-radius: 20rpx;
+      padding: 0 15rpx;
+    }
+    .desc {
+      width: 100%;
+      text-align: center;
+      font-size: 26rpx;
+      color: #ccc;
+      margin-bottom: 20rpx;
+    }
+  }
+}
+</style>
