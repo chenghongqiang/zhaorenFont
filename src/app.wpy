@@ -7,7 +7,10 @@ export default class extends wepy.app {
     pages: [
       "pages/index",
       "pages/find",
+      "pages/intro",
+      "pages/introSuccess",
       "pages/referrer",
+      "pages/poster",
       "pages/my",
       "pages/about", //关于页面
       "pages/history", //找人记录
@@ -47,15 +50,11 @@ export default class extends wepy.app {
   };
   onShow(options) {}
   onLaunch(options) {
-    wx.getUserInfo({
-      success: () => {
-        if (!wx.getStorageSync(config.env + "token")) {
-          new Login().getUserInfo();
-        }
-      },
-      fail: () => {
-      }
-    });
+
+    var tokenStorage = wx.getStorageSync(config.env + "token");
+    if(!tokenStorage) {
+        new Login().getUserInfo();
+    }
   }
   onError(msg) {}
 }

@@ -109,9 +109,7 @@ export default class My extends wepy.page {
     }
   };
   onShow() {
-     let that = this;
-     that.userInfo.balance = 0;
-     that.$apply();
+
   }
   onLoad(options) {
     // 处理 sharke 动画
@@ -130,7 +128,6 @@ export default class My extends wepy.page {
   getUserInfo() {
     let that = this;
     http.request("App.Find_User.GetUserProfile", "POST", {}, (res) => {
-      console.log('getUserPorfile:' + res);
       that.userInfo.headimgurl = res.avatarUrl;
       that.userInfo.nickname = res.nickName;
       that.userInfo.balance = res.wallet;

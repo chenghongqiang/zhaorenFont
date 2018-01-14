@@ -14,10 +14,10 @@
     <view class="modal" wx:if="{{ruleModal}}">
         <view class="rule" >
             <view class="ruleItem">找人规则</view>
-            <view class="ruleItem">1、找人有效期是24小时，引荐不成功红包退回钱包；</view>
-            <view class="ruleItem">2、引荐成功后1小时，引荐人和被引荐人平分红包；</view>
-            <view class="ruleItem">3、加不了微信、引荐的人不匹配可申述退回红包；</view>
-            <view class="ruleItem">4、领取的红包在钱包里面提现。</view>
+            <view class="ruleItem">1、找人有效期是24小时，引荐不成功后红包在1-5天内自动退回钱包；</view>
+            <view class="ruleItem">2、引荐成功后，引荐人和被引荐人平分红包，发起人可及时联系被推荐人；</view>
+            <view class="ruleItem">3、引荐人、被引荐人不正当领取红包可以向客服申诉，事情属实将降低用户信用等级；</view>
+            <view class="ruleItem">4、领取的红包可以在钱包里面提现，1-5天内到账。</view>
             <view class="ruleClose">
                 <icon type="cancel" size="40" @tap="toClose"/>
             </view>

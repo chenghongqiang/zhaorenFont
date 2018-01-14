@@ -37,104 +37,6 @@
                     </view>
                 </view>
             </view>
-        </view> 
-        <view wx:if="{{type == 2}}">  
-            <findFlow :creatorAvatar.sync="creator_avatarUrl" :introAvatar.sync="introducer_avatarUrl" :introedAvatar.sync="introducered_avatarUrl"></findFlow>        
-            <view class="input">
-                <view class="li2">
-                    <view class="desc">红包</view>
-                    <view class="li-item2 li-item2-center">
-                        {{redPacket}}元
-                        <image class="moneyTip" src="../assets/images/moneyTip.png" style="width:40rpx; height: 40rpx;" @tap='onMoneyTip'/>
-                    </view>
-                </view>
-                <view class="li2">
-                    <view class="desc">我想找</view>
-                    <view class="li-item2">{{find}}</view>
-                </view>
-                <view wx:if="{{typeOne==1}}">
-                    <view class="li2 li2-no-bot">
-                        <view class="desc">找人码</view>
-                        <view class="li-item2">{{inputVal}}</view>
-                    </view>
-                    <view class="li2 li2-input">
-                        <view class="desc">引荐人</view>
-                        <view class="li-item2">
-                            <input class="li-item-input" disabled="{{true}}" name="input" placeholder="请留下你的手机,方便联系" bindinput="bindReferrer" placeholder-class="info_input" value="{{referrer}}"/>
-                            <button class="getPhoneBtn" type="primary" hover-class="button-hover" open-type="getPhoneNumber" bindgetphonenumber="getReferrerPhoneNumber">一键输入</button>
-                        </view>
-                    </view>
-                    <view class="li2 li2-btn">
-                        <form report-submit="true" style="width:100%;" bindsubmit="toTypeOne2">
-                            <button type="primary" hover-class="button-hover" formType="submit">给TA引荐朋友，领红包</button>
-                        </form>
-                    </view>
-                </view>
-                <view wx:if="{{typeOne==2}}">
-                    <view class="li2">
-                        <view class="desc">找人码</view>
-                        <view class="li-item2">{{inputVal}}</view>
-                    </view>
-                    <view class="li2 li2-no-bot li2-copy">
-                        <view class="desc">引荐人</view>
-                        <view class="li-item2">
-                            <text>{{referrer}}</text>
-                            <text class="copy" @tap='copyReferrer'>复制</text>
-                        </view>
-                    </view>
-                    <view wx:if="{{typeTwo==1}}">
-                        <view class="li2 li2-btn">
-                            <button type="primary" hover-class="button-hover" open-type="share">分享给引荐的朋友</button>
-                        </view>
-                    </view>
-                    <view wx:if="{{typeTwo==2}}">
-                        <view class="li2 li2-input">
-                            <view class="desc">被引荐人</view>
-                            <view class="li-item2">
-                                <input class="li-item-input" disabled="{{true}}" name="input" placeholder="请留下你的手机，方便联系" bindinput="bindReferee" placeholder-class="info_input" bindblur="redfereeOut" value="{{referee}}" />
-                                <button class="getPhoneBtn" type="primary" hover-class="button-hover" open-type="getPhoneNumber" bindgetphonenumber="getRefereePhoneNumber">一键输入</button>
-                            </view>
-                        </view>
-                        
-                        <view class="li2 li2-btn">
-                            <form report-submit="true" style="width:100%;" bindsubmit="toTypeTwo3">
-                                <button type="primary" hover-class="button-hover" formType="submit">给TA引荐朋友，领红包</button>
-                            </form>
-                        </view>
-                    </view>
-                    <view wx:if="{{typeTwo==3}}">
-                        <view class="li2 li2-no-bot li2-copy">
-                            <view class="desc">被引荐人</view>
-                            <view class="li-item2">
-                                <text>{{referee}}</text>
-                                <text class="copy" @tap='copyReferee'>复制</text>
-                            </view>                 
-                        </view>
-                        <view wx:if="{{typeThree==1}}">
-                            <view class="li2 li2-success-tip">
-                                <view class="tipIcon">
-                                    <image class="tipIcon-img" src="../assets/images/successTip.png" style="width:150rpx; height: 150rpx;"/>
-                                </view>
-                                <view class="tipCont">
-                                    <view class="tipContA">提交成功!</view>
-                                    <view class="tipContB">请等待发起人联系</view>
-                                </view>
-                            </view>
-                        </view>
-                        <view wx:if="{{typeThree==2}}">
-                            <view class="li2 li2-warn-tip">
-                                <view class="tipIcon">
-                                    <image class="tipIcon-img" src="../assets/images/warnTip.png" style="width:150rpx; height: 150rpx;"/>
-                                </view>
-                                <view class="tipCont">
-                                    <view class="tipContA">你来晚了</view>
-                                    <view class="tipContB">已经有人给TA引荐成功</view>
-                                </view>
-                            </view>
-                        </view> 
-                    </view>
-                </view>               
-            </view>
         </view>
     </view>
 </template>
@@ -142,7 +44,6 @@
 <script>
 import wx from "wepy";
 import http from "../utils/request.js";
-import request from "../utils/request.js";
 import config from "../config";
 import mixin from "../mixins/redux";
 import findFlow from "../components/findFlow";
@@ -158,22 +59,7 @@ export default class referrer extends wx.page {
   data = {
     version: config.version,
     inputVal: "",
-    type: 1,
-    typeOne: 1,
-    typeTwo: 1,
-    typeThree: 1,
-    redPacket: "",
-    find: "",
-    findNum: "",
-    introducerCode: "",
-    referrer: "",
-    referee: "",
-    idOne: "",
-    idTwo: "",
-    idThree: "",
-    creator_avatarUrl: "",
-    introducer_avatarUrl: "",
-    introducered_avatarUrl: ""
+    type: 1
   };
   bindInputVal(e) {
     this.inputVal = e.detail.value;
@@ -182,436 +68,61 @@ export default class referrer extends wx.page {
   bindReferrer(e) {
     this.referrer = e.detail.value;
   }
-  bindReferee(e) {
-    this.referee = e.detail.value;
-  }
-  toTypeOne2() {
-    let that = this;
-    let a = {
-      record_id: that.idOne,
-      wx_introducer_code: that.referrer
-    };
-    // 引荐人提交数据
-    http.request(
-      "App.Find_IntroRecord.Intro",
-      "POST",
-      a,
-      res => {
-        console.log("res", res);
-        if (res !== "") {
-          that.idTwo = res;
-          that.typeOne = 2;
-          let b = {
-            id: that.idOne,
-            intro_user_id: that.idTwo
-          };
-          // 引荐人提交数据页面和提交数据后页面详情
-          http.request(
-            "App.Find_Record.GetIntroRecord",
-            "POST",
-            b,
-            res => {
-              console.log("res2", res);
-              that.introducer_avatarUrl = res.wx_introducer_avatarUrl;
-              console.log("res2详细", that.introducer_avatarUrl);
-              that.$apply();
-            },
-            err => {},
-            {
-              noToast: true
-            }
-          );
-        }
-        that.$apply();
-      },
-      err => {
-        console.log("错误！");
-      },
-      {
-        noToast: true
-      }
-    );
-  }
-  toTypeOne2(e) {
-    let that = this;
-    let a = {
-      record_id: that.idOne,
-      wx_introducer_code: that.referrer
-    };
-    let intro = that.referrer;
-    console.log("res_referrer", intro);
-    if (!intro) {
-      wx.showModal({
-        content: "引荐人为空!",
-        showCancel: false,
-        confirmText: "知道了",
-        confirmColor: "#F86136"
-      });
-    } else {
-      // 引荐人提交数据
-      http.request(
-        "App.Find_IntroRecord.Intro",
-        "POST",
-        a,
-        res => {
-          console.log("res", res);
-          if (res !== "") {
-            that.idTwo = res;
-            that.typeOne = 2;
-            let b = {
-              id: that.idOne,
-              intro_user_id: that.idTwo
-            };
-            // 引荐人提交数据页面和提交数据后页面详情
-            http.request(
-              "App.Find_Record.GetIntroRecord",
-              "POST",
-              b,
-              res => {
-                console.log("res2", res);
-                that.introducer_avatarUrl = res.wx_introducer_avatarUrl;
-                console.log("res2详细", that.introducer_avatarUrl);
-                that.$apply();
-              },
-              err => {},
-              {
-                noToast: true
-              }
-            );
-          }
-          that.$apply();
-        },
-        err => {
-          console.log("错误！");
-        },
-        {
-          noToast: true
-        }
-      );
-    }
-  }
   toType2() {
     let that = this;
     let a = {
       code: that.inputVal
     };
+    if (a.code.length !== 6) {
+       return;
+    }
+
     http.request(
       "App.Find_Record.CheckCode",
       "POST",
       a,
       res => {
         console.log("res", res);
-        if (res == !1) {
+        if (res === !1) {
           wx.showModal({
-            content: "找人码不存在 或 已引荐成功！",
-            showCancel: false,
-            confirmText: "知道了",
-            confirmColor: "#F86136"
-          });
-          console.log("找人码不存在 或 已引荐成功！");
-        } else {
-          let a = {
-            id: res.id
-          };
-          http.request(
-            "App.Find_Record.GetIntroRecord",
-            "POST",
-            a,
-            res => {
-              console.log("res", res);
-              that.redPacket = res.money;
-              that.find = res.intro;
-              that.idOne = res.id;
-              that.creator_avatarUrl = res.wx_creator_avatarUrl;
-              that.type = 2;
-              that.$apply();
-            },
-            err => {},
-            {
-              noToast: true
+            content: "找人码已失效！=>去发起找人",
+            showCancel: true,
+            cancelText: "取消",
+            confirmText: "发起找人",
+            confirmColor: "#F86136",
+            success: function (res) {
+                if(res.confirm){
+                    wx.navigateTo({
+                        url: "/pages/find"
+                    });
+                }
             }
-          );
+          });
+
+        } else {
+          console.log('找人码返回：' + res.id);
+          wx.navigateTo({
+             url: "/pages/intro?type=1&recordId=" + res.id
+          });
         }
         that.$apply();
       },
       err => {
-        console.log("找人码为空！");
+        console.log(err);
       },
       {
         noToast: true
       }
     );
   }
-  toTypeTwo3(e) {
-    let that = this;
-    let a = {
-      record_id: that.idOne,
-      intro_user_id: that.idTwo,
-      wx_introducered_code: that.referee
-    };
-    let b = {
-      id: that.idOne
-    };
-    let introed = that.referee;
-    if (introed == "") {
-      wx.showModal({
-        content: "被引荐人为空!",
-        showCancel: false,
-        confirmText: "知道了",
-        confirmColor: "#F86136"
-      });
-    } else {
-      // 被推荐人提交数据后引荐成功信息页面详情
-      http.request(
-        "App.Find_Record.GetOperRecord",
-        "POST",
-        b,
-        res => {
-          console.log("res3-0", res);
-          let state = res.oper_state;
-          if (state == 1) {
-            // 被引荐人提交数据
-            http.request(
-              "App.Find_IntroSuccessRecord.Intro",
-              "POST",
-              a,
-              res => {
-                console.log("res3-1", res);
-                if (res !== "") {
-                  that.idThree = res.intro_success_id;
-                  that.typeTwo = 3;
-                  let b = {
-                    id: that.idOne
-                  };
-                  // 被推荐人提交数据后引荐成功信息页面详情
-                  http.request(
-                    "App.Find_Record.GetOperRecord",
-                    "POST",
-                    b,
-                    res => {
-                      console.log("res3-2", res);
-                      that.introducered_avatarUrl =
-                        res.wx_introducered_avatarUrl;
-                      that.referee = res.wx_introducered_code;
-                      that.$apply();
-                    },
-                    err => {},
-                    {
-                      noToast: true
-                    }
-                  );
-                }
-              }
-            );
-          } else {
-            wx.showModal({
-              content: "过期失效 或 引荐成功",
-              showCancel: false,
-              confirmText: "知道了",
-              confirmColor: "#F86136"
-            });
-          }
-          that.$apply();
-        },
-        err => {},
-        {
-          noToast: true
-        }
-      );
-    }
-  }
-  getReferrerPhoneNumber(e) {
-    let that = this;
-    console.log(e.detail.errMsg, e.detail.iv, e.detail.encryptedData);
-    if (e.detail.errMsg == "getPhoneNumber:fail user deny") {
-      wx.showModal({
-        title: "提示",
-        showCancel: false,
-        content: "请允许授权",
-        success: function(res) {}
-      });
-    } else {
-      http.request(
-        "App.Find_User.GetPhoneNumber",
-        "POST",
-        {
-          encryptedData: e.detail.encryptedData,
-          iv: e.detail.iv
-        },
-        res => {
-          if (res) {
-            that.referrer = res;
-            that.$apply();
-          } else {
-            wx.showModal({
-              content: "授权失败，请重试",
-              showCancel: false,
-              confirmText: "知道了"
-            });
-          }
-        },
-        err => {}
-      );
-    }
-  }
-  getRefereePhoneNumber(e) {
-    let that = this;
-    console.log(e.detail.errMsg, e.detail.iv, e.detail.encryptedData);
-    if (e.detail.errMsg == "getPhoneNumber:fail user deny") {
-      wx.showModal({
-        title: "提示",
-        showCancel: false,
-        content: "请允许授权",
-        success: function(res) {}
-      });
-    } else {
-      http.request(
-        "App.Find_User.GetPhoneNumber",
-        "POST",
-        {
-          encryptedData: e.detail.encryptedData,
-          iv: e.detail.iv
-        },
-        res => {
-          if (res) {
-            that.referee = res;
-            that.$apply();
-          } else {
-            wx.showModal({
-              content: "授权失败，请重试",
-              showCancel: false,
-              confirmText: "知道了"
-            });
-          }
-        },
-        err => {}
-      );
-    }
-  }
-  copyReferrer() {
-    let that = this;
-    wx.setClipboardData({
-      data: that.referrer,
-      success: function(res) {
-        wx.getClipboardData({
-          success: function(res) {
-            console.log(res.data);
-            wx.showToast({
-              title: "复制成功",
-              icon: "success",
-              duration: 1000
-            });
-          }
-        });
-      }
-    });
-  }
-  copyReferee() {
-    let that = this;
-    wx.setClipboardData({
-      data: that.referee,
-      success: function(res) {
-        wx.getClipboardData({
-          success: function(res) {
-            console.log(res.data);
-            wx.showToast({
-              title: "复制成功",
-              icon: "success",
-              duration: 1000
-            });
-          }
-        });
-      }
-    });
-  }
-  submit() {
-    if (this.form.referrer == "") {
-      wx.showModal({
-        content: "你输入的找人码错误"
-      });
-    } else {
-      this.typeChild = 2;
-    }
-  }
+
   share() {
     wx.navigateTo({
-      url: "/pages/referee"
+      url: "/pages/referrer"
     });
   }
-  onShareAppMessage() {
-    let that = this;
-    let idOne = that.idOne;
-    let idTwo = that.idTwo;
-    let type = 2;
-    let typeOne = 2;
-    let typeTwo = 2;
-    return {
-      title: "送红包：Hi，给你推荐个朋友",
-      path:
-        "pages/referrer?type=" +
-        type +
-        "&typeOne=" +
-        typeOne +
-        "&typeTwo=" +
-        typeTwo +
-        "&idOne=" +
-        idOne +
-        "&idTwo=" +
-        idTwo,
-      imageUrl: "",
-      success: res => {
-        // 分享成功
-      },
-      fail: res => {
-        // 分享失败
-      }
-    };
-  }
-  onMoneyTip() {
-    wx.showModal({
-      content: "引荐人、被引荐人平分红包",
-      showCancel: false,
-      confirmText: "知道了",
-      confirmColor: "#F86136"
-    });
-  }
-  onLoad(options) {
-    console.log(options);
-    let that = this;
-    let type = options.type;
-    that.type = type;
-    let typeOne = options.typeOne;
-    that.typeOne = typeOne;
-    let typeTwo = options.typeTwo;
-    that.typeTwo = typeTwo;
-    let idOne = options.idOne;
-    that.idOne = idOne;
-    let idTwo = options.idTwo;
-    that.idTwo = idTwo;
-    let a = {
-      id: that.idOne,
-      intro_user_id: that.idTwo
-    };
-    http.request(
-      "App.Find_Record.GetIntroRecord",
-      "POST",
-      a,
-      res => {
-        console.log("res_onload", res);
-        that.redPacket = res.money;
-        that.find = res.intro;
-        that.inputVal = res.code;
-        that.creator_avatarUrl = res.wx_creator_avatarUrl;
-        that.introducer_avatarUrl = res.wx_introducer_avatarUrl;
-        that.referrer = res.wx_introducer_code;
-        that.$apply();
-      },
-      err => {},
-      {
-        noToast: true
-      }
-    );
-  }
+  onShareAppMessage() {}
+  onLoad(options) {}
 }
 </script>
 

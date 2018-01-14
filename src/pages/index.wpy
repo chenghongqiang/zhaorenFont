@@ -40,8 +40,8 @@ export default class extends wx.page {
       let that = this;
       wx.getUserInfo({
         success: () => {
-          if (!wx.getStorageSync(config.env + "_addUser")) {
-            new Login().getUserInfo(); //登录
+          if (!wx.getStorageSync(config.env + "token")) {
+             new Login().getUserInfo(); //登录
           }
           wx.navigateTo({
             url: "/pages/find"
@@ -78,7 +78,9 @@ export default class extends wx.page {
       let that = this;
       wx.getUserInfo({
         success: () => {
-          new Login().init(); //登录
+          if (!wx.getStorageSync(config.env + "token")) {
+            new Login().getUserInfo(); //登录
+          }
           wx.navigateTo({
             url: "/pages/referrer"
           });
@@ -103,7 +105,7 @@ export default class extends wx.page {
                   }
                 });
               } else if (res.cancel) {
-                that.methods.toReferrer();
+
               }
             }
           });

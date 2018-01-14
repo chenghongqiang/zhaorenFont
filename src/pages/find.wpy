@@ -109,7 +109,7 @@ export default class find extends wx.page {
     let that = this;
     let cRedPacket = util.trim(e.detail.value);
     let tRedPacket = util.testRedPacket(cRedPacket);
-    if (tRedPacket) {
+    if (tRedPacket && cRedPacket <= 100000) {
       this.redPacket_status = !0;
       this.errorRedPacket = !1;
       this.redPacket = cRedPacket;
@@ -131,7 +131,7 @@ export default class find extends wx.page {
   bindFind(e) {
     var that = this;
     let cFind = util.trim(e.detail.value);
-    if (cFind !== "") {
+    if (cFind !== "" && cFind.length <= 40) {
       this.find_status = !0;
       this.find = cFind;
     } else {
@@ -264,11 +264,11 @@ export default class find extends wx.page {
   toPay(e) {
     let that = this;
     // 收集formId
-    that.saveFormId.call(e);
+    //that.saveFormId.call(e);
     if (!that.redPacket || that.redPacket < 0) {
       return;
     }
-    request.request(
+    http.request(
       "App.Find_Pay.PrePay",
       "POST",
       {
@@ -328,7 +328,7 @@ export default class find extends wx.page {
     let type = 2;
     return {
       title: shareTxt,
-      path: "pages/referrer?type=" + type + "&idOne=" + findId,
+      path: "pages/intro?type=" + type + "&idOne=" + findId,
       success: res => {
         // 分享成功
       },

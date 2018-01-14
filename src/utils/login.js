@@ -19,7 +19,7 @@ pt.wechatapplogin = function (parm) {
 		return;
 	}
 	wx.request({
-		url: `${config.apiBase}` + 'App.Find_User.UserLogin',
+		url: `${config.apiBase}` + '?service=App.Find_User.UserLogin',
 		data: parm,
 		method: 'POST',
 		header: {
@@ -27,16 +27,16 @@ pt.wechatapplogin = function (parm) {
 			'Accept': 'application/json'
 		},
 		success: function (resRes) {
-			console.log('登陆成功', resRes);
-			loginSts = !1;//取消登录状态
+			console.log('调用后端UserLogin接口成功', resRes);
 			resRes.data = parseData(resRes.data);
 			if (resRes.data.data.thirdSessionKey) {
 				wx.setStorageSync(server + 'token', resRes.data.data.thirdSessionKey);
 			} else {
-				return;
+				loginSts = !1;
+				console.log('登录失败');
 			}
 		},
-		fail: (err) => {
+		fail: () => {
 			loginSts = !1;//取消登录状态
 		}
 	})
@@ -44,9 +44,11 @@ pt.wechatapplogin = function (parm) {
 
 pt.toLogin = function () {
 	let that = this;
+	console.log('调用微信login');
 	wx.login({
 		success: (res) => {
 			if (!res || !res.code) {
+				console.log('获取用户登录态失败！' + res.errMsg);
 				return;
 			}
 			let code = res.code,
@@ -54,16 +56,14 @@ pt.toLogin = function () {
 					code: code
 				}
 
-			let accessToken = wx.getStorageSync(config.env + 'token');
-			if (!accessToken) {
+			let accessToken = wx.getStorageSync(server + 'token');
+			if ( accessToken === '') {
 				that.wechatapplogin(parm);
-			} else {
-				loginSts = !1;//取消登录状态
 			}
 		},
-		error: () => {
+		fail: () => {
 			wx.showToast({
-				title: '调用登录失败'
+				title: '微信服务器异常，请稍后重试！'
 			})
 		}
 	});
@@ -72,19 +72,25 @@ pt.toLogin = function () {
 pt.getUserInfo = function () {
 	let that = this;
 	that.toLogin((code) => {
-		wx.getUserInfo({
-			success: (resInfo) => {
-				console.log('resInfo',resInfo);
-				let parm = {
-					code: code,
-					encryptedData: resInfo.encryptedData,
-					iv: resInfo.iv,
-					rawData: resInfo.rawData,
-					signature: resInfo.signature
+		var userInfoStorage = wx.getStorageSync(config.env + "userInfo");
+		if(!userInfoStorage) {
+			wx.getUserInfo({
+				success: (resInfo) => {
+					console.log('resInfo',resInfo);
+					let parm = {
+						code: code,
+						encryptedData: resInfo.encryptedData,
+						iv: resInfo.iv,
+						rawData: resInfo.rawData,
+						signature: resInfo.signature
+					};
+					that.wechatapplogin(parm);
+					wx.setStorageSync(config.env + 'userInfo', resInfo.userInfo);
 				}
-				that.wechatapplogin(parm);
-			}
-		})
+			})
+		}
+
+		console.log('info:' + userInfoStorage);
 	});
 }
 
@@ -94,7 +100,6 @@ pt.init = function () {
 	if (loginSts == !0) {
 		return;
 	}
-	loginSts = !0;
 	that.toLogin();
 }
 
@@ -120,7 +125,7 @@ pt.addUser = function (parm) {
 				wx.setStorageSync(server + '_addUser',true);
 			}
 		},
-		fail: (err) => {
+		fail: () => {
 			wx.showToast({
 				title: '系统故障，请联系管理员'
 			})
