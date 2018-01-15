@@ -325,10 +325,17 @@ export default class find extends wx.page {
   onShareAppMessage() {
     let that = this;
     let findId = that.findId;
-    let type = 2;
+    let type = that.type;
+    let path = "/pages/find";
+    if (type === 1) {
+      path = "/pages/find";
+    } else if (type === 2) {
+      path = "/pages/intro?type=" + type + "&recordId=" + findId;
+    }
+
     return {
       title: shareTxt,
-      path: "pages/intro?type=" + type + "&idOne=" + findId,
+      path: path,
       success: res => {
         // 分享成功
       },

@@ -17,15 +17,14 @@
                 <view class="desc">找人码</view>
                 <view class="li-item2">{{code}}</view>
             </view>
-            <view class="li2 li2-no-bot li2-copy">
-                <view class="desc">引荐人</view>
-                <view class="li-item2">
-                    <text>{{referrer}}</text>
-                    <text class="copy" @tap='copyReferrer'>复制</text>
-                </view>
-            </view>
-
             <view wx:if="{{type==1}}">
+                <view class="li2 li2-no-bot li2-copy">
+                    <view class="desc">引荐人</view>
+                    <view class="li-item2">
+                        <text>{{referrer}}</text>
+                        <text class="copy" @tap='copyReferrer'>复制</text>
+                    </view>
+                </view>
                 <view class="li2 li2-input">
                     <view class="desc">被引荐人</view>
                     <view class="li-item2">
@@ -40,6 +39,13 @@
                 </view>
             </view>
             <view wx:if="{{type==2}}">
+                <view class="li2 li2-no-bot li2-copy">
+                    <view class="desc">引荐人</view>
+                    <view class="li-item2">
+                        <text>{{referrer}}</text>
+                        <text class="copy" @tap='copyReferrer'>复制</text>
+                    </view>
+                </view>
                 <view class="li2 li2-no-bot li2-copy">
                     <view class="desc">被引荐人</view>
                     <view class="li-item2">
@@ -245,7 +251,7 @@ export default class introSuccess extends wx.page {
   copyReferee() {
     let that = this;
     wx.setClipboardData({
-      data: that.referee,
+      data: that.phone,
       success: function(res) {
         wx.getClipboardData({
           success: function(res) {
@@ -265,17 +271,17 @@ export default class introSuccess extends wx.page {
     let recordId = that.recordId;
     let introUserId = that.introUserId;
     let introSuccessId = that.introSuccessId;
-    let type = 2;
-    let typeSuccess = 2;
+    let type = that.type;
+    let typeSuccess = that.typeSuccess;
+
+    let path = "pages/introSuccess?type=" +  type + "&recordId=" + recordId + "&introUserId=" + introUserId;
+    if(typeSuccess === 2) {
+      path = "pages/introSuccess?type=" +  type + "&typeSuccess=2&recordId=" + recordId + "&introSuccessId=" + introSuccessId ;
+    }
+
     return {
       title: "送红包：Hi，给你推荐个朋友",
-      path:
-        "pages/introSuccess?type=" +
-        type +
-        "&recordId=" +
-        recordId +
-        "&introSuccessId=" +
-        introSuccessId,
+      path: path,
       imageUrl: "",
       success: res => {
         // 分享成功
@@ -294,7 +300,7 @@ export default class introSuccess extends wx.page {
     });
   }
   onLoad(options) {
-    console.log(options);
+    console.log("onLoad introSuccess:", options);
     let that = this;
     let type = options.type;
     that.type = type;
@@ -307,7 +313,7 @@ export default class introSuccess extends wx.page {
 
     let introSuccessId = options.introSuccessId;
     that.introSuccessId = introSuccessId;
-    if(!introSuccessId) {
+    if(introSuccessId) {
       let param = {
         id: that.recordId,
       };
@@ -344,7 +350,7 @@ export default class introSuccess extends wx.page {
         "POST",
         param,
         res => {
-            console.log("res_onload", res);
+            console.log("App.Find_Record.GetIntroRecord", res);
             that.redPacket = res.money;
             that.intro = res.intro;
             that.code = res.code;

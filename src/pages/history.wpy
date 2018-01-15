@@ -11,7 +11,8 @@
 
         <view wx-if="{{curIndex == 0}}" class="container">
             <view class="historyContainer">
-                <view class='listContainer' wx:for='{{inviteRewardRecords}}' wx:key='index' item='item' data-item='{{item}}'>
+                <view class='listContainer' wx:for='{{inviteRewardRecords}}' wx:key='index' item='item' data-item='{{item}}'
+                    data-id="{{item.id}}" data-state="{{item.oper_state}}" data-introSuccessId="{{item.introSuccessId}}" bindtap="detail">
                   <view class='list flex-xy'>
                       <view class='list-left flex-xy'>
                           <view class="listLabel">
@@ -43,7 +44,8 @@
 
         <view wx-if="{{curIndex == 1}}" class="container">
             <view class="historyContainer">
-                <view class='listContainer' wx:for='{{list2}}' wx:key='index' item='item' data-item='{{item}}'>
+                <view class='listContainer' wx:for='{{list2}}' wx:key='index' item='item' data-item='{{item}}'
+                  data-id="{{item.id}}" data-state="{{item.oper_state}}" data-introSuccessId="{{item.introSuccessId}}" bindtap="detail">
                   <view class='list flex-xy'>
                       <view class='list-left flex-xy'>
                         <image style="border-radius:50%" src='{{item.wx_creator_avatarUrl}}'/>
@@ -109,11 +111,26 @@ export default class WithdrawHistory extends wepy.page {
         showCancel: false,
         content: "明细包含你的邀请奖励及用户购保奖励"
       });
+    },
+    detail(event) {
+      console.log('detail evenet:', event);
+      if(event.currentTarget.dataset.state == 3) {
+        wx.navigateTo({
+           url:"/pages/introSuccess?type=2&typeSuccess=2&recordId=" + event.currentTarget.dataset.id +
+              "&introSuccessId=" + event.currentTarget.dataset.introSuccessId,
+           //接口调用成功的回调方法
+           success:function(){},
+           //接口调用失败的回调方法
+           fail:function(){},
+           // 接口调用无论成功或者失败的回调方法
+           complete:function(){}
+        })
+      }
     }
   };
   events = {};
-  onLoad() {}
-  onShow() {
+  onShow() {}
+  onLoad() {
     let that = this;
     that.curPage1 = 0;
     that.curPage2 = 0;

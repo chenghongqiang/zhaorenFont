@@ -108,7 +108,7 @@ export default class referrer extends wx.page {
         that.$apply();
       },
       err => {
-        console.log(err);
+        console.log("App.Find_Record.CheckCode error");
       },
       {
         noToast: true

@@ -178,11 +178,9 @@ export default class intro extends wx.page {
     let introUserId = that.introUserId;
 
     let type = 1;
-    let path = "pages/introSuccess?type=" + type + "&recordId=" + recordId + "&introUserId=" + introUserId;
+    let path = "pages/intro?type=" + type + "&recordId=" + recordId;
 
     if(introUserId) {
-        console.log("introUserId:", introUserId);
-        type = 2;
         path = "pages/introSuccess?type=1&recordId=" + recordId + "&introUserId=" + introUserId;
     }
 
@@ -206,7 +204,7 @@ export default class intro extends wx.page {
     });
   }
   onLoad(options) {
-    console.log(options);
+    console.log("onLoad intro:", options);
     let that = this;
     let type = options.type;
     that.type = type;

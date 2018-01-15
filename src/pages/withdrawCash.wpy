@@ -47,7 +47,7 @@ export default class extends wx.page {
       "POST",
       {},
       res => {
-        console.log(res);
+        console.log("App.Find_User.GetUserProfile:", res);
         that.balance = res.wallet;
         that.$apply();
       },
@@ -68,7 +68,7 @@ export default class extends wx.page {
     },
     eventHandle() {
       let that = this;
-      console.log("mmm",that.redPacket)
+      console.log("提现金额为:", that.redPacket)
       if(that.redPacket==''){
         wx.showModal({
           content: "请输入提现金额",
