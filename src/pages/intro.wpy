@@ -93,7 +93,8 @@ export default class intro extends wx.page {
     let that = this;
     let a = {
       record_id: that.recordId,
-      wx_introducer_code: that.phone
+      wx_introducer_code: that.phone,
+      formId: e.detail.formId
     };
     if (!that.phone) {
       wx.showModal({

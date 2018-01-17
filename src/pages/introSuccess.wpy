@@ -133,7 +133,8 @@ export default class introSuccess extends wx.page {
     let a = {
       record_id: that.recordId,
       intro_user_id: that.introUserId,
-      wx_introducered_code: that.phone
+      wx_introducered_code: that.phone,
+      formId: e.detail.formId
     };
     let b = {
       id: that.recordId
