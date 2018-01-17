@@ -13,11 +13,11 @@
                 <view class="desc">我想找</view>
                 <view class="li-item2">{{intro}}</view>
             </view>
+             <view class="li2 li2-no-bot">
+                  <view class="desc">找人码</view>
+                  <view class="li-item2">{{code}}</view>
+              </view>
             <view wx:if="{{type==1}}">
-                <view class="li2 li2-no-bot">
-                    <view class="desc">找人码</view>
-                    <view class="li-item2">{{code}}</view>
-                </view>
                 <view class="li2 li2-input">
                     <view class="desc">引荐人</view>
                     <view class="li-item2">
@@ -32,10 +32,6 @@
                 </view>
             </view>
             <view wx:if="{{type==2}}">
-                <view class="li2">
-                    <view class="desc">找人码</view>
-                    <view class="li-item2">{{code}}</view>
-                </view>
                 <view class="li2 li2-no-bot li2-copy">
                     <view class="desc">引荐人</view>
                     <view class="li-item2">
@@ -45,6 +41,17 @@
                 </view>
                 <view class="li2 li2-btn">
                     <button type="primary" hover-class="button-hover" open-type="share">分享给引荐的朋友</button>
+                </view>
+            </view>
+            <view wx:if="{{type==3}}">
+                <view class="li2 li2-warn-tip">
+                    <view class="tipIcon">
+                        <image class="tipIcon-img" src="../assets/images/warnTip.png" style="width:150rpx; height: 150rpx;"/>
+                    </view>
+                    <view class="tipCont">
+                        <view class="tipContA">你来晚了</view>
+                        <view class="tipContB">已经有人给TA引荐成功</view>
+                    </view>
                 </view>
             </view>
         </view>
@@ -68,7 +75,7 @@ export default class intro extends wx.page {
   };
   data = {
     version: config.version,
-    type: 1, //type=1为引荐人录入信息页面 type=2为提交数据成功页面
+    type: 1, //type=1为引荐人录入信息页面 type=2为提交数据成功页面 type=3为找人记录成功页面
 
     code: "", //找人码
     redPacket: "", //红包金额
@@ -229,6 +236,9 @@ export default class intro extends wx.page {
         that.creator_avatarUrl = res.wx_creator_avatarUrl;
         that.introducer_avatarUrl = res.wx_introducer_avatarUrl;
         that.phone = res.wx_introducer_code;
+        if (res.oper_state == 3) {
+          that.type = 3;
+        }
         that.$apply();
       },
       err => {},
@@ -313,6 +323,27 @@ page {
         }
         .clear {
           clear: both;
+        }
+      }
+    }
+    .li2-warn-tip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1e93ff;
+      margin-top: 50rpx;
+      padding-top: 40rpx;
+      padding-bottom: 40rpx;
+      border-bottom: none;
+      background: #e8f4ff;
+      .tipCont {
+        margin-top: -15rpx;
+        margin-left: 20rpx;
+        .tipContA {
+          font-size: 36rpx;
+        }
+        .tipContB {
+          font-size: 28rpx;
         }
       }
     }

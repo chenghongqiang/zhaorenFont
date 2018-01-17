@@ -327,10 +327,10 @@ export default class find extends wx.page {
     let findId = that.findId;
     let type = that.type;
     let path = "/pages/find";
-    if (type === 1) {
+    if (type == 1) {
       path = "/pages/find";
-    } else if (type === 2) {
-      path = "/pages/intro?type=" + type + "&recordId=" + findId;
+    } else if (type == 2) {
+      path = "/pages/intro?type=1&recordId=" + findId;
     }
 
     return {
@@ -358,6 +358,31 @@ export default class find extends wx.page {
       },
       fail: () => {}
     });
+    let type = options.type;
+    that.type = type;
+    if(that.type == 2) {
+      let recordId = options.recordId;
+      that.findId = recordId;
+      let b = {
+        id: that.findId
+      };
+      http.request(
+        "App.Find_Record.GetIntroRecord",
+        "POST",
+        b,
+        res => {
+          that.findNum = res.code;
+          that.find = res.intro;
+          that.redPacket = res.money;
+          that.$apply();
+        },
+        err => {},
+        {
+          noToast: true
+        }
+      );
+    }
+
   }
 }
 </script>

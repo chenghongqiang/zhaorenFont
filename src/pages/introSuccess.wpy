@@ -75,6 +75,17 @@
                         </view>
                     </view>
                 </view>
+                <view wx:if="{{typeSuccess==3}}">
+                    <view class="li2 li2-warn-tip">
+                        <view class="tipIcon">
+                            <image class="tipIcon-img" src="../assets/images/warnTip.png" style="width:150rpx; height: 150rpx;"/>
+                        </view>
+                        <view class="tipCont">
+                            <view class="tipContA">温馨提示</view>
+                            <view class="tipContB">专属微信客服zkfqyr777</view>
+                        </view>
+                    </view>
+                </view>
             </view>
         </view>
     </view>
@@ -266,31 +277,7 @@ export default class introSuccess extends wx.page {
     });
   }
   //小程序分享
-  onShareAppMessage() {
-    let that = this;
-    let recordId = that.recordId;
-    let introUserId = that.introUserId;
-    let introSuccessId = that.introSuccessId;
-    let type = that.type;
-    let typeSuccess = that.typeSuccess;
 
-    let path = "pages/introSuccess?type=" +  type + "&recordId=" + recordId + "&introUserId=" + introUserId;
-    if(typeSuccess === 2) {
-      path = "pages/introSuccess?type=" +  type + "&typeSuccess=2&recordId=" + recordId + "&introSuccessId=" + introSuccessId ;
-    }
-
-    return {
-      title: "送红包：Hi，给你推荐个朋友",
-      path: path,
-      imageUrl: "",
-      success: res => {
-        // 分享成功
-      },
-      fail: res => {
-        // 分享失败
-      }
-    };
-  }
   onMoneyTip() {
     wx.showModal({
       content: "引荐人、被引荐人平分红包",
@@ -323,7 +310,7 @@ export default class introSuccess extends wx.page {
         "POST",
         param,
         res => {
-          console.log("onLoad->App.Find_Record.GetOperRecord", res);
+          console.log("onLoad->App.Find_Record.GetOperRecord", res.oper_state);
 
           that.redPacket = res.money;
           that.intro = res.intro;
@@ -333,6 +320,10 @@ export default class introSuccess extends wx.page {
           that.introducered_avatarUrl = res.wx_introducered_avatarUrl;
           that.phone = res.wx_introducered_code;
           that.referrer = res.wx_introducer_code;
+          if(res.oper_state == 3) {
+            that.type = 2;
+            that.typeSuccess = 3;
+          }
           that.$apply();
         },
         err => {},

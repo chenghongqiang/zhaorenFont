@@ -109,7 +109,8 @@ export default class My extends wepy.page {
     }
   };
   onShow() {
-
+    let that = this;
+    that.getUserInfo();
   }
   onLoad(options) {
     // 处理 sharke 动画

@@ -42,20 +42,28 @@ export default class extends wx.page {
   };
   onLoad() {
     let that = this;
-    http.request(
-      "App.Find_User.GetUserProfile",
-      "POST",
-      {},
-      res => {
-        console.log("App.Find_User.GetUserProfile:", res);
-        that.balance = res.wallet;
-        that.$apply();
-      },
-      err => {},
-      {
-        noToast: true
-      }
-    );
+    that.init();
+  }
+  onShow() {
+    let that = this;
+    that.init();
+  }
+  init() {
+    let that = this;
+      http.request(
+        "App.Find_User.GetUserProfile",
+        "POST",
+        {},
+        res => {
+          console.log("App.Find_User.GetUserProfile:", res);
+          that.balance = res.wallet;
+          that.$apply();
+        },
+        err => {},
+        {
+          noToast: true
+        }
+      );
   }
   methods = {
     toList() {
@@ -69,14 +77,14 @@ export default class extends wx.page {
     eventHandle() {
       let that = this;
       console.log("提现金额为:", that.redPacket)
-      if(that.redPacket==''){
+      if (that.redPacket === '' || that.redPacket === 0){
         wx.showModal({
           content: "请输入提现金额",
           showCancel: false,
           confirmText: "知道了",
           confirmColor: "#F86136"
         });
-      }else{
+      } else {
         if (parseInt(that.redPacket) > parseInt(that.balance)) {
           wx.showModal({
             content: "可提现金额不足",
@@ -84,8 +92,7 @@ export default class extends wx.page {
             confirmText: "知道了",
             confirmColor: "#F86136"
           });
-          return;
-        }else {
+        } else {
           http.request(
             "App.Find_WalletWithdrawRecord.Withdraw",
             "POST",
@@ -93,9 +100,13 @@ export default class extends wx.page {
               money: that.redPacket
             },
             res => {
-              wx.showToast({
-                title: "提现成功"
-              });
+              if (res) {
+                wx.showToast({
+                  title: "提现成功"
+                });
+              }
+              that.balance = parseFloat(that.balance) - parseFloat(that.redPacket);
+              that.$apply();
             },
             () => {},
             {
