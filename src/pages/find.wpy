@@ -347,7 +347,7 @@ export default class find extends wx.page {
   }
   toPoster() {
     wx.navigateTo({
-      url: "/pages/poster"
+      url: "/pages/poster?id=" + this.findId
     });
   }
   onLoad(options) {

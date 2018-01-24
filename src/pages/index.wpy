@@ -45,6 +45,8 @@ export default class extends wx.page {
           }
           wx.navigateTo({
             url: "/pages/find"
+            //url: "/pages/poster?id=34"
+            //url: "/pages/introSuccess?type=1&recordId=34&introUserId=30"
           });
         },
         fail: () => {

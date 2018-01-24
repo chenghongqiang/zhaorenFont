@@ -5,6 +5,6 @@ let config = {
     env:'111',
     version: 'v1.0.0'
 };
-config.apiBase = "https://www.helpzhaoren.com/";
+config.apiBase = "https://service.helpzhaoren.com";
 
 module.exports = config;

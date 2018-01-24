@@ -1,10 +1,8 @@
 <template>
   <view class="container">
-    <image src="{{containerBg}}" style="z-index:-1;width:{{containerStyle.width}}px;height:{{containerStyle.height}}px;"></image>
     <view class="poster">
-      <view class="casContainer" style="border:0 solid #f00;width:{{casStyle.width}}px;height:{{casStyle.height}}px;">
-        <canvas @tap="preview" canvas-id="cas" wx:if="{{!posterSrc}}"></canvas>
-        <image @tap="preview" src="{{posterSrc}}" wx:if="{{posterSrc}}"></image>
+      <view class="casContainer" style="border:0 solid #f00; margin:0px auto;width:{{casStyle.imageWidth}}px;height:{{casStyle.imageHeight}}px;">
+        <canvas @tap="preview" canvas-id="canvas"></canvas>
       </view>
       <view class="shareFriendsDesc">
         <image src="{{shareFriendsDesc}}"></image>
@@ -17,253 +15,216 @@
 </template>
 
 <script>
-import wepy from "wepy";
-import request from "../utils/request.js";
+import wx from "wepy";
+import http from "../utils/request.js";
 import config from "../config";
 import mixin from "../mixins/redux";
-let imageSrc = ""; //海报背景图地址
 let appId = config.AppID; //小程序appid  用作获取二维码
-let url = config.apiQRCode + "QRCodeNew"; //二维码接口
-let qrcodeUrl = "";
+
 let tempPath = ""; //导出图片的临时路径
-let ctx = null; //获取canvas组件
-let workSign = 0; //任务状态
-export default class poster extends wepy.page {
+let text = "";
+
+var ctx = null;// 使用 wx.createContext 获取绘图上下文 context
+var canvasw = 0;
+var canvash = 0;
+var timer;
+
+export default class poster extends wx.page {
   config = {
-    navigationBarTitleText: "分享好产品"
+    navigationBarTitleText: "生成海报"
   };
   data = {
     casStyle: {
-      width: 0,
-      height: 0
+      imageWidth: 0,
+      imageHeight: 0
     },
-    containerStyle: {
-      width: 0,
-      height: 0
-    },
-    bgPic: "../assets/images/bg.png",
-    posterSrc: "" //导出图片的临时路径
+    money: 0,
+    code: "",
+    intro: "",
+
+    posterSrc: "",
   };
   mixins = [mixin];
   methods = {
-    /**
-     * 预览图片
-     */
-    preview() {
-      var that = this;
-      wx.previewImage({
-        urls: [tempPath],
-        success: function() {}
-      });
-    },
-    /*showShare() {
-      wx.showModal({
-        content: '请点击右上角转发进行分享',
-        showCancel: false,
-      });
-      this.methods.saveShareClick();
-    },*/
-    /**
-    * 保存图片到相册
-    */
-    saveImgToAl() {
-      let that = this;
-      if (!wx.saveImageToPhotosAlbum) {
-        wx.showModal({
-          content: "您的微信版本过低，不能保存图片，请升级重试"
-        });
-        return;
-      }
-      wx.saveImageToPhotosAlbum({
-        filePath: tempPath,
-        success: function(res) {
-          wx.showToast({
-            title: "海报已保存至相册",
-            icon: "success",
-            mask: true
-          });
-        },
-        fail: function() {
-          wx.showModal({
-            content: "需要授权才可保存到相册哦",
-            confirmText: "前往授权",
-            showCancel: true,
-            success(res) {
-              if (res.confirm && wx.openSetting) {
-                wx.openSetting({
-                  success: function(res) {
-                    if (!res.authSetting["scope.writePhotosAlbum"]) {
-                      wx.authorize({
-                        scope: "scope.writePhotosAlbum",
-                        success() {
-                          //that.methods.saveImgToAl();
-                        }
-                      });
-                    }
-                  }
-                });
-              } else if (res.cancel) {
-                that.methods.preview();
-              }
-            }
-          });
-        }
-      });
-    }
-  };
-  onLoad(options) {
-    let that = this,
-      res = request.systemInfo,
-      rw = res.windowWidth;
-    setTimeout(() => {
-      that.containerStyle = {
-        width: rw,
-        height: rw * 1228 / 750
-      };
-      that.$apply();
-    }, 0);
 
-    qrcodeUrl = "../assets/images/qrCode.jpg"; //拼接得到二维码资源URL
+  };
+
+  onLoad(options) {
+    let id = options.id;
+    this.getCanvasStyle();
+    this.loop(id);
+
+  };
+
+  loop(id) {
+    if(this.code != ""){
+        this.draw();
+        return;
+    }
+
+    this.getRecordInfo(id);
+    this.getQrcode(id);
+    timer = setTimeout(() => {
+      this.loop(id);
+      clearTimeout(timer);
+    }, 1000);
+  };
+
+  //请求找人记录接口获取找人信息
+  getRecordInfo(id) {
+    console.log("getRecordInfo id:", id);
+    http.request(
+      "App.Find_Record.GetIntroRecord",
+      "POST",
+      {id: id},
+      res => {
+
+        this.money = res.money;
+        this.intro = res.intro;
+        this.code = res.code;
+        console.log("res.code:", this.code);
+      },
+      err => {},
+      {
+
+      }
+    );
+  };
+
+  //获取二维码
+  getQrcode(id){
+    console.log("GetQrcode");
+    http.request(
+      "App.Find_Wechat.GetQrcode",
+      "POST",
+      {width: 150, path: "/pages/intro?type=1&recordId=" + id},
+      res => {
+        this.posterSrc = 'data:image/png;base64,' + res;
+        this.$apply();
+      },
+      err => {
+        console.log("getQrcode error");
+      }
+    );
+  };
+
+  //设置canvas宽和高
+  getCanvasStyle() {
+    wx.getSystemInfo({
+      success: function (res) {
+        canvasw = res.windowWidth;//设备宽度
+        canvash = res.windowHeight;
+      }
+    });
+
+    this.casStyle.imageWidth = canvasw - 10;
+    this.casStyle.imageHeight = canvash - 10;
+    this.$apply();
+  };
+
+  //绘制海报页面
+  draw() {
     wx.showToast({
       icon: "loading",
       title: "海报生成中",
-      duration: 10000,
+      duration: 1000,
       mask: true
     });
-    that.draw();
-  }
-  onShow() {
-    workSign = 0;
-  }
-  /**
-   * canvas进行图片合成
-   */
-  draw() {
-    let that = this;
-    let casStyle = {
-      width: request.systemInfo.windowWidth * 0.8
-    };
-    casStyle.height = casStyle.width / 750 * 1255;
-    that.casStyle = casStyle;
-    that.$apply();
-    ctx = wx.createCanvasContext("cas"); //获取canvas组件
-    that.drawBg();
-  }
-  /**
-   * 绘制二维码
-   */
-  drawQr() {
-    let that = this;
-    let scaleX = that.casStyle.width; //屏幕宽度适配比例
-    let scaleY = that.casStyle.height; //屏幕高度适配比例
-    // let zxtempFilePath = wx.getStorageSync('zxtempFilePath');
-    let zxtempFilePath = "";
-    if (zxtempFilePath) {
-      console.log("拿缓存zxtempFilePath", zxtempFilePath);
-      wx.getImageInfo({
-        src: zxtempFilePath,
-        success: rs => {
-          that.posterSrc = tempPath = zxtempFilePath;
-          that.$apply();
-          wx.hideToast();
-        },
-        fail: rs => {
-          getQrAndBg();
-          wx.setStorageSync("zxtempFilePath", "");
+    //使用 wx.createContext 获取绘图上下文 context
+    ctx = wx.createCanvasContext("canvas");
+
+    ctx.drawImage('../assets/images/canvas.png', 0, 0, canvasw, canvash)
+
+    //绘制红包金额
+    ctx.setFontSize(40)
+    ctx.setFillStyle('#FF3D29')
+    ctx.fillText(this.money, canvasw / 2 - 10 , canvash / 3 + 75)
+
+    //绘制找人码
+    ctx.setFontSize(16)
+    ctx.setFillStyle('#000000')
+    ctx.fillText(this.code, canvasw / 3 - 25 , canvash / 3 * 2 - 65)
+
+    console.log(canvasw, canvash);
+    text = this.intro;
+
+    //分隔内容，每16字符一行
+    const getContentBlock = (content = '') => {
+      let result = [];
+      if (typeof content === 'string') {
+        //将文字分行，每16个字符一行
+        const COUNT_PER_BLOCK = 16;
+        for (let offset = 0, l = content.length; offset < l;) {
+          let start = offset;
+          let end = offset + COUNT_PER_BLOCK;
+          let block = content.substring(start, end);
+          result.push(block);
+          offset += COUNT_PER_BLOCK;
         }
-      });
-    } else {
-      getQrAndBg();
-    }
-
-    function getQrAndBg() {
-      //拿到背景和二维码
-      // getById();
-      imageSrc = "../assets/images/elifeShareBg.png";
-      workSign++;
-      that.drawBg();
-      wx.downloadFile({
-        url: qrcodeUrl,
-        success(res) {
-          wx.getImageInfo({
-            src: res.tempFilePath,
-            success: rs => {
-              ctx.drawImage(
-                res.tempFilePath,
-                scaleX * 0.675,
-                scaleY * 0.838,
-                scaleX * 0.273,
-                scaleX * 0.273
-              );
-              workSign++;
-              console.log("进行画", res.tempFilePath);
-              that.drawBg();
-            },
-            fail: rs => {
-              console.log("后台不给力", rs);
-            }
-          });
-        },
-        fail: () => {}
-      });
-    }
-  }
-  /**
-   * 绘制背景图
-   */
-  drawBg() {
-    let that = this;
-    let bgWidth = that.casStyle.width;
-    let bgHeight = that.casStyle.height;
-    wx.hideToast();
-    let bgTempPath = that.bgPic;
-    ctx.drawImage(bgTempPath, 0, 0, bgWidth, bgHeight);
-    ctx.setFillStyle("#F65754");
-    ctx.setFontSize(30);
-    ctx.setTextAlign("center");
-    ctx.fillText("80元", bgWidth * 0.5, bgHeight * 0.38);
-
-    ctx.setFillStyle("#ffffff");
-    ctx.setFontSize(14);
-    ctx.setTextAlign("left");
-    ctx.fillText("122133", bgWidth * 0.263, bgHeight * 0.502);
-
-    ctx.setFontSize(14);
-    ctx.setTextAlign("left");
-    ctx.fillText("我想找:某某公司，因业务扩展先需招聘业务员数", bgWidth * 0.263, bgHeight * 0.542);
-    ctx.fillText("名切记那怕只招一个人也要写数名，求推荐..", bgWidth * 0.123, bgHeight * 0.582);
-    ctx.draw();
-    //that.casToFile();
-  }
-  /**
-   * 导出canvas到图片
-   */
-  casToFile() {
-    let that = this;
-    // 导出到本地文件
-    wx.canvasToTempFilePath({
-      canvasId: "cas",
-      success: res => {
-        //that.posterSrc = res.tempFilePath;
-        tempPath = res.tempFilePath;
-        that.$apply();
-        wx.setStorageSync("zxtempFilePath", res.tempFilePath);
-      },
-      fail: () => {}
-    });
-  }
-  /*onShareAppMessage() {
-    return {
-      title: "Hi，给你引荐个朋友",
-      path: "pages/index",
-      success: (res) => {
-        // 分享成功
-      },
-      fail: (res) => {
-        // 分享失败
       }
+
+      return result;
     }
-  }*/
+
+    const contentX = canvasw / 3 - 25;
+    const contentY = canvash / 3 * 2 - 40;
+    const fixHeight = 20;
+    let contentBlocks = getContentBlock(text);
+    ctx.setFontSize(16);
+
+    for (let i = 0, l = contentBlocks.length; i < l; i++) {
+      let x = contentX;
+      let y = contentY + fixHeight * i;
+      console.log(x, y, contentBlocks[i]);
+      ctx.fillText(contentBlocks[i], x, y);
+    }
+
+    //绘制小程序二维码
+    ctx.drawImage(this.posterSrc, canvasw / 3, canvash * 3 / 4 + 10, canvasw - 250, canvash - 480)
+    ctx.draw(true)
+  };
+
+  imageLoad(e) {
+     //用来计算高宽
+     this.imageStyle = this.wxAutoImageCal(e);
+     this.$apply();
+  };
+
+  wxAutoImageCal(e) {
+     //获取图片的原始长宽
+     var originalWidth = e.detail.width;
+     var originalHeight = e.detail.height;
+     var windowWidth = 0, windowHeight = 0;
+     var imageWidth= 0, imageHeight= 0;
+     var results = {};
+     //获取屏幕信息
+     wx.getSystemInfo({
+       success: function(res) {
+         windowWidth = res.windowWidth;
+         windowHeight = res.windowHeight;
+         //判断按照那种方式进行缩放
+         if(originalWidth > windowWidth) { //在图片width大于手机屏幕width时候
+           imageWidth = windowWidth;
+           imageHeight= (imageWidth*originalHeight)/originalWidth;
+           results.imageWidth = imageWidth - 40;
+           results.imageHeight = imageHeight - 30;
+         } else { //否则展示原来的数据
+           results.imageWidth= originalWidth;
+           results.imageHeight= originalHeight;
+         }
+       }
+     })
+     console.log(results);
+     return results;
+  };
+
+  onReady() {
+
+  }
+
+  onShow() {
+
+  }
 }
 </script>
 <style lang="less">
@@ -277,58 +238,7 @@ page {
   width: 100%;
   height: 100%;
   overflow: hidden;
-}
-
-.left-btn {
   position: fixed;
-  bottom: 0;
-  left: 40rpx;
-  width: 336rpx;
-  height: 122rpx;
-  z-index: 222;
-  image {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-  button {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-  }
-}
-
-.firstIcon {
-  position: absolute;
-  width: 131rpx;
-  height: 64rpx;
-  right: 0;
-  bottom: 12%;
-}
-
-.right-btn {
-  position: fixed;
-  bottom: 0;
-  right: 40rpx;
-  width: 336rpx;
-  height: 122rpx;
-  z-index: 222;
-  image {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-  button {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-  }
 }
 
 .poster {
@@ -338,9 +248,7 @@ page {
   left: 0;
   z-index: 9;
   .casContainer {
-    width: 554rpx;
-    height: 864rpx;
-    margin: 0 auto;
+    margin: 20 auto;
     box-sizing: border-box;
     overflow: hidden;
     canvas {
@@ -348,8 +256,9 @@ page {
       height: 100%;
     }
     image {
-      width: 100%;
-      height: 100%;
+      width: 200px;
+      height: 200px;
+      z-index: 10;
     }
   }
   .center {
@@ -378,7 +287,6 @@ page {
   left: 0;
   text-align: center;
   width: 100%;
-  z-index: 11;
   image {
     width: 627rpx;
     height: 94rpx;

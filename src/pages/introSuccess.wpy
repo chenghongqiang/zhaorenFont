@@ -178,8 +178,7 @@ export default class introSuccess extends wx.page {
                     b,
                     res => {
                       console.log("App.Find_Record.GetOperRecord", res);
-                      that.introducered_avatarUrl =
-                        res.wx_introducered_avatarUrl;
+                      that.introducered_avatarUrl = res.wx_introducered_avatarUrl;
                       that.phone = res.wx_introducered_code;
                       that.$apply();
                     },

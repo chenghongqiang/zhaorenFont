@@ -26,7 +26,7 @@ function common_req() {
 		wx.showToast({
 			title: '加载中',
 			icon: 'loading',
-			duration: 10000,
+			duration: 2000,
 			mask: true
 		});
 	}
@@ -58,7 +58,8 @@ function common_req() {
 				wx.setStorageSync(server + 'token', '');
 				new Login().init();//登录
 				return;
-			} else {//返回错误的情况
+			} else {
+				//返回错误的情况
 				if (res.data.msg && !noModal) {
 					args[4] && args[4].call(this, res);
 					wx.showModal({

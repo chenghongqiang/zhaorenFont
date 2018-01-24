@@ -90,6 +90,7 @@ export default class intro extends wx.page {
   }
 
   introSubmit(e) {
+    console.log(e);
     let that = this;
     let a = {
       record_id: that.recordId,

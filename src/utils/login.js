@@ -12,9 +12,11 @@ var pt = Login.prototype;
 
 pt.wechatapplogin = function (parm) {
 	let that = this;
+	console.log("wechatapplogin", parm);
 	if(parm.iv && parm.encryptedData && !wx.getStorageSync('_addUser')){
 		let token = wx.getStorageSync(server + 'token');
 		parm.thirdSessionKey = token;
+		console.log("addUser");
 		that.addUser(parm);
 		return;
 	}
@@ -23,7 +25,7 @@ pt.wechatapplogin = function (parm) {
 		data: parm,
 		method: 'POST',
 		header: {
-			'content-type': 'application/x-www-form-urlencoded',
+			'Content-Type': 'application/x-www-form-urlencoded',
 			'Accept': 'application/json'
 		},
 		success: function (resRes) {
@@ -38,6 +40,7 @@ pt.wechatapplogin = function (parm) {
 		},
 		fail: () => {
 			loginSts = !1;//取消登录状态
+			console.log('服务异常，请稍后重试！');
 		}
 	})
 }
@@ -57,7 +60,7 @@ pt.toLogin = function () {
 				}
 
 			let accessToken = wx.getStorageSync(server + 'token');
-			if ( accessToken === '') {
+			if ( accessToken == '') {
 				that.wechatapplogin(parm);
 			}
 		},
@@ -98,6 +101,7 @@ pt.getUserInfo = function () {
 pt.init = function () {
 	let that = this;
 	if (loginSts == !0) {
+		console.log("登录态已存在");
 		return;
 	}
 	that.toLogin();
