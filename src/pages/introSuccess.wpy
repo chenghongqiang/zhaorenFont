@@ -348,6 +348,7 @@ export default class introSuccess extends wx.page {
             that.creator_avatarUrl = res.wx_creator_avatarUrl;
             that.introducer_avatarUrl = res.wx_introducer_avatarUrl;
             that.referrer = res.wx_introducer_code;
+            that.phone = res.wx_current_code;
             that.$apply();
           },
           err => {},

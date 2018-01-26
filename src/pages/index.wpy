@@ -1,7 +1,7 @@
 <template>
     <view class="container">
         <view class="top">
-            <image class="topImg" src="../assets/images/index_top.png"/>
+            <image class="topImg"  @tap="toAbout" src="../assets/images/index_top.png"/>
         </view>
         <view class="box" @tap="toFind">
             <view class="left">
@@ -36,6 +36,11 @@ export default class extends wx.page {
     version: config.version
   };
   methods = {
+    toAbout() {
+      wx.navigateTo({
+        url: "/pages/about"
+      });
+    },
     toFind() {
       let that = this;
       wx.getUserInfo({

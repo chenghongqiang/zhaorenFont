@@ -85,7 +85,7 @@ export default class referrer extends wx.page {
         console.log("res", res);
         if (res === !1) {
           wx.showModal({
-            content: "找人码已失效！=>去发起找人",
+            content: "找人码已失效！去发起找人",
             showCancel: true,
             cancelText: "取消",
             confirmText: "发起找人",

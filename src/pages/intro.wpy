@@ -237,7 +237,10 @@ export default class intro extends wx.page {
         that.code = res.code;
         that.creator_avatarUrl = res.wx_creator_avatarUrl;
         that.introducer_avatarUrl = res.wx_introducer_avatarUrl;
-        that.phone = res.wx_introducer_code;
+        if(res.wx_current_code != '') {
+          that.phone = res.wx_current_code;
+        }
+
         if (res.oper_state == 3) {
           that.type = 3;
         }
