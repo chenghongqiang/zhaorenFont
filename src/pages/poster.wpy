@@ -4,13 +4,12 @@
       <view class="casContainer" style="border:0 solid #f00; margin:0px auto;width:{{casStyle.imageWidth}}px;height:{{casStyle.imageHeight}}px;">
         <canvas @tap="preview" canvas-id="canvas"></canvas>
       </view>
-      <view class="shareFriendsDesc">
-        <image src="{{shareFriendsDesc}}"></image>
+
+      <view class="shareFriendsButton" style="margin:0px auto;width:{{shareFriendsButtonStyle.imageWidth}}px;height:{{shareFriendsButtonStyle.imageHeight}}px;"  @tap="saveImgToAl">
+        <image src="{{shareFriendsButtonPic}}"></image>
       </view>
     </view>
-    <view class="shareFriendsButton" @tap="saveImgToAl">
-      <image src="{{shareFriendsButton}}"></image>
-    </view>
+
   </view>
 </template>
 
@@ -21,7 +20,6 @@ import config from "../config";
 import mixin from "../mixins/redux";
 let appId = config.AppID; //小程序appid  用作获取二维码
 
-let tempPath = ""; //导出图片的临时路径
 let text = "";
 
 var ctx = null;// 使用 wx.createContext 获取绘图上下文 context
@@ -38,11 +36,17 @@ export default class poster extends wx.page {
       imageWidth: 0,
       imageHeight: 0
     },
+    shareFriendsButtonStyle: {
+      imageWidth: 0,
+      imageHeight: 0
+    },
     money: 0,
     code: "",
     intro: "",
 
     posterSrc: "",
+    shareFriendsButtonPic: "",
+    tempPath: "" //导出图片的临时路径
   };
   mixins = [mixin];
   methods = {
@@ -117,8 +121,12 @@ export default class poster extends wx.page {
       }
     });
 
-    this.casStyle.imageWidth = canvasw - 10;
-    this.casStyle.imageHeight = canvash - 10;
+    this.casStyle.imageWidth = canvasw - 20;
+    this.casStyle.imageHeight = canvash - 100;
+
+    this.shareFriendsButtonStyle.imageWidth = canvasw - 20;
+    this.shareFriendsButtonStyle.imageHeight = 100;
+
     this.$apply();
   };
 
@@ -133,17 +141,23 @@ export default class poster extends wx.page {
     //使用 wx.createContext 获取绘图上下文 context
     ctx = wx.createCanvasContext("canvas");
 
-    ctx.drawImage('../assets/images/canvas.png', 0, 0, canvasw, canvash)
+    ctx.drawImage('../assets/images/canvas.png', 0, 0, this.casStyle.imageWidth, this.casStyle.imageHeight)
+
+    //文字x坐标
+    var textX = canvasw / 3 - 25;
+    //文字Y坐标
+    var textY = canvash / 4;
 
     //绘制红包金额
     ctx.setFontSize(40)
     ctx.setFillStyle('#FF3D29')
-    ctx.fillText(this.money, canvasw / 2 - 10 , canvash / 3 + 75)
+    ctx.fillText(this.money, canvasw / 2 - 10 , textY)
+
 
     //绘制找人码
     ctx.setFontSize(16)
     ctx.setFillStyle('#000000')
-    ctx.fillText(this.code, canvasw / 3 - 25 , canvash / 3 * 2 - 65)
+    ctx.fillText(this.code, textX , textY  + 90)
 
     console.log(canvasw, canvash);
     text = this.intro;
@@ -166,8 +180,8 @@ export default class poster extends wx.page {
       return result;
     }
 
-    const contentX = canvasw / 3 - 25;
-    const contentY = canvash / 3 * 2 - 40;
+    const contentX = textX;
+    const contentY = textY + 110;
     const fixHeight = 20;
     let contentBlocks = getContentBlock(text);
     ctx.setFontSize(16);
@@ -180,14 +194,93 @@ export default class poster extends wx.page {
     }
 
     //绘制小程序二维码
-    ctx.drawImage(this.posterSrc, canvasw / 3, canvash * 3 / 4 + 10, canvasw - 250, canvash - 480)
+    ctx.drawImage(this.posterSrc, canvasw / 3, (canvash-100) * 4 + 120 , canvasw - 250, canvash - 480)
     ctx.draw(true)
+
+    //设置底部分享图片
+    this.shareFriendsButtonPic = "../assets/images/save.png";
+    this.$apply();
   };
 
   imageLoad(e) {
      //用来计算高宽
      this.imageStyle = this.wxAutoImageCal(e);
      this.$apply();
+  };
+
+  //获取画图临时图片路径
+  getCanvasPicPath() {
+    var path = "";
+    wx.canvasToTempFilePath({
+      x: 0,
+      y: 0,
+      width: this.casStyle.imageWidth,
+      height: this.casStyle.imageHeight,
+      destWidth: this.casStyle.imageWidth,
+      destHeight: this.casStyle.imageHeight,
+      canvasId: 'canvas',
+      success: function(res) {
+        path = res.tempFilePath;
+      },
+      fail: function() {
+        console.log("canvasToTempFilePath fail");
+      }
+    });
+    console.log("path: ", path);
+    return path;
+
+  };
+
+  /**
+  * 保存图片到相册
+  */
+  saveImgToAl() {
+    let that = this;
+    if (!wx.saveImageToPhotosAlbum) {
+      wx.showModal({
+        content: "您的微信版本过低，不能保存图片，请升级重试"
+      });
+      return;
+    }
+
+    var path = this.getCanvasPicPath();
+    console.log("tempPath:", path);
+    wx.saveImageToPhotosAlbum({
+      filePath: path,
+      success: function(res) {
+        wx.showToast({
+          title: "海报已保存至相册",
+          icon: "success",
+          mask: true
+        });
+      },
+      fail: function(res) {
+        console.log("saveImageToPhotosAlbum fail:", res);
+        wx.showModal({
+          content: "需要授权才可保存到相册哦",
+          confirmText: "前往授权",
+          showCancel: true,
+          success(res) {
+            if (res.confirm && wx.openSetting) {
+              wx.openSetting({
+                success: function(res) {
+                  if (!res.authSetting["scope.writePhotosAlbum"]) {
+                    wx.authorize({
+                      scope: "scope.writePhotosAlbum",
+                      success() {
+                        this.saveImgToAl();
+                      }
+                    });
+                  }
+                }
+              });
+            } else if (res.cancel) {
+              that.methods.preview();
+            }
+          }
+        });
+      }
+    });
   };
 
   wxAutoImageCal(e) {
@@ -242,10 +335,8 @@ page {
 }
 
 .poster {
-  position: absolute;
+
   width: 100%;
-  top: 20rpx;
-  left: 0;
   z-index: 9;
   .casContainer {
     margin: 20 auto;
@@ -255,41 +346,20 @@ page {
       width: 100%;
       height: 100%;
     }
-    image {
-      width: 200px;
-      height: 200px;
-      z-index: 10;
-    }
   }
   .center {
     text-align: center;
     margin-top: 20rpx;
-    .ad {
-      width: 609rpx;
-      height: 54rpx;
-    }
-  }
-}
-
-.shareFriendsDesc {
-  text-align: center;
-  width: 100%;
-  margin-top: 20rpx;
-  image {
-    width: 627rpx;
-    height: 102rpx;
   }
 }
 
 .shareFriendsButton {
-  position: absolute;
-  bottom: 20rpx;
-  left: 0;
+
   text-align: center;
   width: 100%;
   image {
-    width: 627rpx;
-    height: 94rpx;
+    width: 100%;
+    height: 100%;
   }
 }
 </style>

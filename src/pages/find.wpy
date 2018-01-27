@@ -131,7 +131,7 @@ export default class find extends wx.page {
   bindFind(e) {
     var that = this;
     let cFind = util.trim(e.detail.value);
-    if (cFind !== "" && cFind.length <= 40) {
+    if (cFind !== "" && cFind.length <= 30) {
       this.find_status = !0;
       this.find = cFind;
     } else {
