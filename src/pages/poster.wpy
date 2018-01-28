@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <view class="poster">
-      <view class="casContainer" style="border:0 solid #f00; margin:0px auto;width:{{casStyle.imageWidth}}px;height:{{casStyle.imageHeight}}px;">
+      <view class="casContainer" style="border:0 solid #f00; width:{{casStyle.imageWidth}}px;height:{{casStyle.imageHeight}}px;">
         <canvas @tap="preview" canvas-id="canvas"></canvas>
       </view>
 
@@ -122,10 +122,10 @@ export default class poster extends wx.page {
     });
 
     this.casStyle.imageWidth = canvasw - 20;
-    this.casStyle.imageHeight = canvash - 100;
+    this.casStyle.imageHeight = canvash - 70;
 
     this.shareFriendsButtonStyle.imageWidth = canvasw - 20;
-    this.shareFriendsButtonStyle.imageHeight = 100;
+    this.shareFriendsButtonStyle.imageHeight = 60;
 
     this.$apply();
   };
@@ -140,24 +140,34 @@ export default class poster extends wx.page {
     });
     //使用 wx.createContext 获取绘图上下文 context
     ctx = wx.createCanvasContext("canvas");
-
+    ctx.scale(1, 1.01);
     ctx.drawImage('../assets/images/canvas.png', 0, 0, this.casStyle.imageWidth, this.casStyle.imageHeight)
 
     //文字x坐标
-    var textX = canvasw / 3 - 25;
+    var textX = canvasw / 10;
     //文字Y坐标
-    var textY = canvash / 4;
+    var textY = canvash / 3 - 20;
 
     //绘制红包金额
-    ctx.setFontSize(40)
-    ctx.setFillStyle('#FF3D29')
-    ctx.fillText(this.money, canvasw / 2 - 10 , textY)
+    ctx.setFontSize(60)
+    ctx.setFillStyle('#6d3c1f')
+    ctx.fillText(this.money, canvasw / 2 - 20 , textY)
+
+    //绘制元
+    ctx.setFontSize(20)
+    ctx.setFillStyle('#6d3c1f')
+    ctx.fillText("元", canvasw / 2 + 10, textY)
 
 
     //绘制找人码
     ctx.setFontSize(16)
+    ctx.setFillStyle('#fbdf97')
+
+    var startY = textY + 100;
+    ctx.fillText("找人码：", textX, startY)
+
     ctx.setFillStyle('#000000')
-    ctx.fillText(this.code, textX , textY  + 90)
+    ctx.fillText(this.code, textX + 60, startY)
 
     console.log(canvasw, canvash);
     text = this.intro;
@@ -181,20 +191,29 @@ export default class poster extends wx.page {
     }
 
     const contentX = textX;
-    const contentY = textY + 110;
+    const contentY = startY + 30;
     const fixHeight = 20;
     let contentBlocks = getContentBlock(text);
     ctx.setFontSize(16);
 
+    ctx.setFillStyle('#fbdf97')
+    ctx.fillText("我想找：", contentX, contentY);
+
+    ctx.setFillStyle('#000000')
     for (let i = 0, l = contentBlocks.length; i < l; i++) {
-      let x = contentX;
+      let x = contentX + 60;
       let y = contentY + fixHeight * i;
       console.log(x, y, contentBlocks[i]);
       ctx.fillText(contentBlocks[i], x, y);
     }
 
+    //绘制二维码提示语
+    ctx.setFontSize(10);
+    ctx.setFillStyle('#F6F6F6')
+    ctx.fillText("- 长按识别小程序二维码 -", contentX + 85, contentY + 80);
+
     //绘制小程序二维码
-    ctx.drawImage(this.posterSrc, canvasw / 3, (canvash-100) * 4 + 120 , canvasw - 250, canvash - 480)
+    ctx.drawImage(this.posterSrc, contentX + 80, contentY + 90 , canvasw - 250, canvash - 480)
     ctx.draw(true)
 
     //设置底部分享图片
@@ -221,6 +240,7 @@ export default class poster extends wx.page {
       canvasId: 'canvas',
       success: function(res) {
         path = res.tempFilePath;
+        console.log("path:", path);
       },
       fail: function() {
         console.log("canvasToTempFilePath fail");
@@ -243,44 +263,77 @@ export default class poster extends wx.page {
       return;
     }
 
-    var path = this.getCanvasPicPath();
-    console.log("tempPath:", path);
-    wx.saveImageToPhotosAlbum({
-      filePath: path,
+    wx.canvasToTempFilePath({
+      x: 0,
+      y: 0,
+      width: this.casStyle.imageWidth,
+      height: this.casStyle.imageHeight,
+      destWidth: this.casStyle.imageWidth,
+      destHeight: this.casStyle.imageHeight,
+      canvasId: 'canvas',
       success: function(res) {
-        wx.showToast({
-          title: "海报已保存至相册",
-          icon: "success",
-          mask: true
-        });
-      },
-      fail: function(res) {
-        console.log("saveImageToPhotosAlbum fail:", res);
-        wx.showModal({
-          content: "需要授权才可保存到相册哦",
-          confirmText: "前往授权",
-          showCancel: true,
-          success(res) {
-            if (res.confirm && wx.openSetting) {
-              wx.openSetting({
-                success: function(res) {
-                  if (!res.authSetting["scope.writePhotosAlbum"]) {
-                    wx.authorize({
-                      scope: "scope.writePhotosAlbum",
-                      success() {
-                        this.saveImgToAl();
+        var path = res.tempFilePath;
+
+        wx.saveImageToPhotosAlbum({
+          filePath: path,
+          success: function(res) {
+            wx.showToast({
+              title: "海报已保存至相册",
+              icon: "success",
+              mask: true
+            });
+          },
+          fail: function(res) {
+            console.log("saveImageToPhotosAlbum fail:", res);
+            wx.getSetting({
+              success: (res) => {
+                 var setting = res.authSetting;
+
+                 //判断已授权相册直接返回
+                 if(!setting["scope.writePhotosAlbum"]) {
+                    wx.showModal({
+                      content: "需要授权才能保存到相册",
+                      confirmText: "前往授权",
+                      showCancel: true,
+                      success(res) {
+                        if (res.confirm && wx.openSetting) {
+                          wx.openSetting({
+                            success: function(res) {
+                              if (!res.authSetting["scope.writePhotosAlbum"]) {
+                                wx.authorize({
+                                  scope: "scope.writePhotosAlbum",
+                                  success() {
+                                    this.saveImgToAl();
+                                  }
+                                });
+                              }
+                            }
+                          });
+                        } else if (res.cancel) {
+                          console.log("相册授权取消");
+                        }
                       }
                     });
-                  }
-                }
-              });
-            } else if (res.cancel) {
-              that.methods.preview();
-            }
+                 }
+              }
+            })
+
+
           }
         });
+
+      },
+      fail: function() {
+        console.log("canvasToTempFilePath fail");
       }
     });
+
+
+  };
+
+  //相册授权提示
+  authroizeAlbumTip() {
+
   };
 
   wxAutoImageCal(e) {
@@ -339,7 +392,8 @@ page {
   width: 100%;
   z-index: 9;
   .casContainer {
-    margin: 20 auto;
+    margin: 0px auto;
+    margin-top: 6px;
     box-sizing: border-box;
     overflow: hidden;
     canvas {
