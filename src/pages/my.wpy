@@ -46,6 +46,7 @@
 import wepy from "wepy";
 import http from "../utils/request.js";
 import mixin from "../mixins/redux";
+import config from "../config";
 export default class My extends wepy.page {
   config = {
       navigationBarBackgroundColor: "#F86136",
@@ -128,6 +129,40 @@ export default class My extends wepy.page {
   // 获取用户信息
   getUserInfo() {
     let that = this;
+
+    wx.getUserInfo({
+      success: () => {
+        if (!wx.getStorageSync(config.env + "token")) {
+           new Login().getUserInfo(); //登录
+        }
+      },
+      fail: () => {
+        wx.showModal({
+          content: "需要授权用户信息才可进入哦",
+          confirmText: "前往授权",
+          showCancel: true,
+          success(res) {
+            if (res.confirm && wx.openSetting) {
+              wx.openSetting({
+                success: function(res) {
+                  if (!res.authSetting["scope.userInfo"]) {
+                    wx.authorize({
+                      scope: "scope.userInfo",
+                      success() {
+                        that.getUserInfo();
+                      }
+                    });
+                  }
+                }
+              });
+            } else if (res.cancel) {
+              that.getUserInfo();
+            }
+          }
+        });
+      }
+    });
+
     http.request("App.Find_User.GetUserProfile", "POST", {}, (res) => {
       that.userInfo.headimgurl = res.avatarUrl;
       that.userInfo.nickname = res.nickName;
