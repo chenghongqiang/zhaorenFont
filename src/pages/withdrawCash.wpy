@@ -30,6 +30,7 @@
 <script>
 import wx from "wepy";
 import http from "../utils/request.js";
+import util from "../utils/util.js";
 export default class extends wx.page {
   config = {
     navigationBarBackgroundColor: "#fff",
@@ -73,6 +74,17 @@ export default class extends wx.page {
     },
     bindRedPacket(e) {
       this.redPacket = e.detail.value;
+
+      var money = this.redPacket.toString().split(".");
+      if(money[1] != null) {
+        var intValue = this.redPacket.toString().split(".")[0];
+        var decimalValue = this.redPacket.toString().split(".")[1];
+        console.log(decimalValue);
+        if(decimalValue.length >= 2) {
+          this.redPacket = intValue + '.' + decimalValue.substring(0, 2);
+        }
+      }
+
     },
     eventHandle() {
       let that = this;
@@ -85,7 +97,7 @@ export default class extends wx.page {
           confirmColor: "#F86136"
         });
       } else {
-        if (parseInt(that.redPacket) > parseInt(that.balance)) {
+        if (Math.round(that.redPacket * 100) / 100 > that.balance) {
           wx.showModal({
             content: "可提现金额不足",
             showCancel: false,
