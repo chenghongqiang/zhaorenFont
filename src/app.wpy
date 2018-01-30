@@ -51,7 +51,7 @@ export default class extends wepy.app {
   onShow(options) {}
   onLaunch(options) {
 
-    var tokenStorage = wx.getStorageSync(config.env + "token");
+    var tokenStorage = wepy.getStorageSync(config.env + "token");
     if(!tokenStorage) {
         new Login().getUserInfo();
     }

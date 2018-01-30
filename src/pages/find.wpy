@@ -359,7 +359,10 @@ export default class find extends wx.page {
       fail: () => {}
     });
     let type = options.type;
-    that.type = type;
+    if(type != '') {
+        that.type = type;
+    }
+
     if(that.type == 2) {
       let recordId = options.recordId;
       that.findId = recordId;

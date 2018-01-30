@@ -46,6 +46,7 @@
 import wepy from "wepy";
 import http from "../utils/request.js";
 import mixin from "../mixins/redux";
+import Login from "../utils/login.js";
 import config from "../config";
 export default class My extends wepy.page {
   config = {
@@ -132,7 +133,7 @@ export default class My extends wepy.page {
 
     wx.getUserInfo({
       success: () => {
-        if (!wx.getStorageSync(config.env + "token")) {
+        if (!wepy.getStorageSync(config.env + "token")) {
            new Login().getUserInfo(); //登录
         }
       },

@@ -1,5 +1,5 @@
 import config from '../config'
-import wepy from 'wepy'
+import wx from 'wepy'
 let server = config.env;
 let loginSts = !1;//是否在登录状态
 //登录模块
@@ -45,7 +45,7 @@ pt.wechatapplogin = function (parm) {
 	})
 }
 
-pt.toLogin = function () {
+pt.toLogin = function (callback) {
 	let that = this;
 	console.log('调用微信login');
 	wx.login({
@@ -59,10 +59,15 @@ pt.toLogin = function () {
 					code: code
 				}
 
+			if(callback) {
+				callback(code);
+			}
+
 			let accessToken = wx.getStorageSync(server + 'token');
 			if ( accessToken == '') {
 				that.wechatapplogin(parm);
 			}
+
 		},
 		fail: () => {
 			wx.showToast({
@@ -74,6 +79,7 @@ pt.toLogin = function () {
 
 pt.getUserInfo = function () {
 	let that = this;
+	console.log('调用微信getUserInfo');
 	that.toLogin((code) => {
 		var userInfoStorage = wx.getStorageSync(config.env + "userInfo");
 		if(!userInfoStorage) {
@@ -116,7 +122,7 @@ pt.addUser = function (parm) {
 		signature: parm.signature
 	}
 	wx.request({
-		url: `${config.apiBase}` + 'App.Find_User.InsertUserInfo',
+		url: `${config.apiBase}` + '?service=App.Find_User.InsertUserInfo',
 		data: newParm,
 		method: 'POST',
 		header: {
