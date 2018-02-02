@@ -2,9 +2,14 @@
 let config = {
     AppID: 'wxd035cd5461feb811',//AppID
     title: '找人',
-    env:'111',
+    env:'prod',
     version: 'v1.0.0'
 };
-config.apiBase = "https://service.helpzhaoren.com";
+
+if (config.env == 'dev') {
+    config.apiBase = "https://service.helpzhaoren.com";
+} else {
+    config.apiBase = "https://service.helpzhaoren.com";
+}
 
 module.exports = config;

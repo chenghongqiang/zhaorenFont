@@ -14,9 +14,13 @@ function request(route, method, data, success, fail, other) {
 	console.log('accessToken:' + accessToken);
 	if (accessToken == '') {
 		new Login().init();//登录
-		return;
+		var timer= setTimeout(() => {
+			this.request(route, method, data, success, fail, other);
+		}, 2000);
+	}else{
+		common_req.apply(null, args);//公共请求封装
 	}
-	common_req.apply(null, args);//公共请求封装
+
 }
 
 function common_req() {
@@ -44,7 +48,8 @@ function common_req() {
 		method: args[1],
 		data: args[2],
 		header: {
-			'content-type': 'application/x-www-form-urlencoded'
+			'content-type': 'application/x-www-form-urlencoded',
+			'Accept': "*/*"
 		},
 		success: (res) => {
 			wx.hideToast();

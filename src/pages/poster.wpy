@@ -101,7 +101,7 @@ export default class poster extends wx.page {
     http.request(
       "App.Find_Wechat.GetQrcode",
       "POST",
-      {width: 150, path: "/pages/intro?type=1&recordId=" + id},
+      {width: 150, page: "pages/intro", scene: "type=1&recordId=" + id},
       res => {
         this.posterSrc = 'data:image/png;base64,' + res;
         this.$apply();
@@ -264,12 +264,7 @@ export default class poster extends wx.page {
     }
 
     wx.canvasToTempFilePath({
-      x: 0,
-      y: 0,
-      width: this.casStyle.imageWidth,
-      height: this.casStyle.imageHeight,
-      destWidth: this.casStyle.imageWidth,
-      destHeight: this.casStyle.imageHeight,
+
       canvasId: 'canvas',
       success: function(res) {
         var path = res.tempFilePath;

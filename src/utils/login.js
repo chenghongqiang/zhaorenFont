@@ -13,36 +13,36 @@ var pt = Login.prototype;
 pt.wechatapplogin = function (parm) {
 	let that = this;
 	console.log("wechatapplogin", parm);
-	if(parm.iv && parm.encryptedData && !wx.getStorageSync('_addUser')){
+	if(parm.iv && parm.encryptedData && !wx.getStorageSync(server + '_addUser')){
 		let token = wx.getStorageSync(server + 'token');
 		parm.thirdSessionKey = token;
 		console.log("addUser");
 		that.addUser(parm);
-		return;
-	}
-	wx.request({
-		url: `${config.apiBase}` + '?service=App.Find_User.UserLogin',
-		data: parm,
-		method: 'POST',
-		header: {
-			'Content-Type': 'application/x-www-form-urlencoded',
-			'Accept': 'application/json'
-		},
-		success: function (resRes) {
-			console.log('调用后端UserLogin接口成功', resRes);
-			resRes.data = parseData(resRes.data);
-			if (resRes.data.data.thirdSessionKey) {
-				wx.setStorageSync(server + 'token', resRes.data.data.thirdSessionKey);
-			} else {
-				loginSts = !1;
-				console.log('登录失败');
+	}else{
+		wx.request({
+			url: `${config.apiBase}` + '?service=App.Find_User.UserLogin',
+			data: parm,
+			method: 'POST',
+			header: {
+				'content-type':'application/x-www-form-urlencoded'
+			},
+			success: function (resRes) {
+				console.log('调用后端UserLogin接口成功', resRes);
+				resRes.data = parseData(resRes.data);
+				if (resRes.data.data.thirdSessionKey) {
+					wx.setStorageSync(server + 'token', resRes.data.data.thirdSessionKey);
+				} else {
+					loginSts = !1;
+					console.log('登录失败');
+				}
+			},
+			fail: () => {
+				loginSts = !1;//取消登录状态
+				console.log('服务异常，请稍后重试！');
 			}
-		},
-		fail: () => {
-			loginSts = !1;//取消登录状态
-			console.log('服务异常，请稍后重试！');
-		}
-	})
+		})
+	}
+
 }
 
 pt.toLogin = function (callback) {
@@ -81,7 +81,7 @@ pt.getUserInfo = function () {
 	let that = this;
 	console.log('调用微信getUserInfo');
 	that.toLogin((code) => {
-		var userInfoStorage = wx.getStorageSync(config.env + "userInfo");
+		var userInfoStorage = wx.getStorageSync(server + '_addUser');
 		if(!userInfoStorage) {
 			wx.getUserInfo({
 				success: (resInfo) => {
@@ -95,6 +95,37 @@ pt.getUserInfo = function () {
 					};
 					that.wechatapplogin(parm);
 					wx.setStorageSync(config.env + 'userInfo', resInfo.userInfo);
+				},
+				fail: () => {
+					console.log('未授权用户信息');
+					wx.showModal({
+						content: "需要授权用户信息才可进入哦",
+						confirmText: "前往授权",
+						showCancel: true,
+						success(res) {
+							if (res.confirm && wx.openSetting) {
+								wx.openSetting({
+									success: function(res) {
+										if (!res.authSetting["scope.userInfo"]) {
+											wx.authorize({
+												scope: "scope.userInfo",
+												success() {
+													wx.showToast({
+														title: '授权成功',
+														icon: 'loading',
+														duration: 2000,
+														mask: true
+													});
+												}
+											});
+										}
+									}
+								});
+							} else if (res.cancel) {
+
+							}
+						}
+					});
 				}
 			})
 		}
@@ -127,7 +158,6 @@ pt.addUser = function (parm) {
 		method: 'POST',
 		header: {
 			'content-type': 'application/x-www-form-urlencoded',
-			'Accept': 'application/json'
 		},
 		success: function (resRes) {
 			if(resRes && resRes.data && resRes.data.ret==200){

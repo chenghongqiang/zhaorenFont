@@ -211,9 +211,10 @@ export default class intro extends wx.page {
       confirmText: "知道了",
       confirmColor: "#F86136"
     });
-  }
+  };
+
   onLoad(options) {
-    console.log("onLoad intro:", options);
+
     let that = this;
     let type = options.type;
     that.type = type;
@@ -222,10 +223,25 @@ export default class intro extends wx.page {
     let introUserId = options.introUserId;
     that.introUserId = introUserId;
 
+    // options 中的 scene 需要使用 decodeURIComponent 才能获取到生成二维码时传入的 scene
+    console.log("options scene", options.scene);
+    if (typeof(options.scene) != "undefined") {
+      let scene = decodeURIComponent(options.scene);
+      console.log("scene", scene);
+      let str = scene.split("&"); //字符分割
+      let strType = str[0].split("=");
+      that.type = strType[1];
+
+      let strId = str[1].split("=");
+      that.recordId = strId[1];
+    }
+
     let a = {
       id: that.recordId,
       intro_user_id: that.introUserId
     };
+
+    console.log("onLoad intro:", options);
     http.request(
       "App.Find_Record.GetIntroRecord",
       "POST",

@@ -45,7 +45,7 @@ export default class extends wx.page {
       let that = this;
       wx.getUserInfo({
         success: () => {
-          if (!wx.getStorageSync(config.env + "token")) {
+          if (!wx.getStorageSync(config.env + "_addUser")) {
              new Login().getUserInfo(); //登录
           }
           wx.navigateTo({
@@ -112,7 +112,7 @@ export default class extends wx.page {
                   }
                 });
               } else if (res.cancel) {
-
+                that.methods.toReferrer();
               }
             }
           });

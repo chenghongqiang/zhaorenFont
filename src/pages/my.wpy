@@ -133,7 +133,7 @@ export default class My extends wepy.page {
 
     wx.getUserInfo({
       success: () => {
-        if (!wepy.getStorageSync(config.env + "token")) {
+        if (!wepy.getStorageSync(config.env + "_addUser")) {
            new Login().getUserInfo(); //登录
         }
       },
@@ -157,7 +157,9 @@ export default class My extends wepy.page {
                 }
               });
             } else if (res.cancel) {
-              that.getUserInfo();
+              wx.navigateTo({
+                url: "/pages/index"
+              });
             }
           }
         });
