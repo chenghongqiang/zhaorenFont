@@ -103,7 +103,8 @@ export default class poster extends wx.page {
       "POST",
       {width: 150, page: "pages/intro", scene: "type=1&recordId=" + id},
       res => {
-        this.posterSrc = 'data:image/png;base64,' + res;
+        console.log(res);
+        this.posterSrc = res;
         this.$apply();
       },
       err => {
@@ -210,10 +211,15 @@ export default class poster extends wx.page {
     //绘制二维码提示语
     ctx.setFontSize(10);
     ctx.setFillStyle('#F6F6F6')
-    ctx.fillText("- 长按识别小程序二维码 -", contentX + 85, contentY + 80);
+    ctx.fillText("- 长按识别小程序二维码 -", contentX + 85, contentY + 75);
 
     //绘制小程序二维码
-    ctx.drawImage(this.posterSrc, contentX + 80, contentY + 90 , canvasw - 250, canvash - 480)
+    if(this.posterSrc == '') {
+        ctx.drawImage("../assets/images/mini.jpg", contentX + 80, contentY + 85 , canvasw - 250, canvash - 480)
+    }else {
+        ctx.drawImage(this.posterSrc, contentX + 80, contentY + 85 , canvasw - 250, canvash - 480)
+    }
+
     ctx.draw(true)
 
     //设置底部分享图片
