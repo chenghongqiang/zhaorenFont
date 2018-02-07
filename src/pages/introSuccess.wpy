@@ -34,7 +34,7 @@
                 </view>
                 <view class="li2 li2-btn">
                     <form report-submit="true" style="width:100%;" bindsubmit="toIntroducered">
-                        <button type="primary" hover-class="button-hover" formType="submit">给TA引荐朋友，领红包</button>
+                        <button type="primary" hover-class="button-hover" formType="submit">交个朋友，领红包</button>
                     </form>
                 </view>
             </view>

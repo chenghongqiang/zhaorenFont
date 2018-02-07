@@ -168,6 +168,9 @@ export default class My extends wepy.page {
 
     http.request("App.Find_User.GetUserProfile", "POST", {}, (res) => {
       that.userInfo.headimgurl = res.avatarUrl;
+      if( that.userInfo.headimgurl == "") {
+        that.userInfo.headimgurl = "../assets/images/avatar.png";
+      }
       that.userInfo.nickname = res.nickName;
       that.userInfo.balance = res.wallet;
       that.$apply();

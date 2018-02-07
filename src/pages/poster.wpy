@@ -141,7 +141,7 @@ export default class poster extends wx.page {
     });
     //使用 wx.createContext 获取绘图上下文 context
     ctx = wx.createCanvasContext("canvas");
-    ctx.scale(1, 1.01);
+    //ctx.scale(1, 1.01);
     ctx.drawImage('../assets/images/canvas.png', 0, 0, this.casStyle.imageWidth, this.casStyle.imageHeight)
 
     //文字x坐标
@@ -152,12 +152,12 @@ export default class poster extends wx.page {
     //绘制红包金额
     ctx.setFontSize(60)
     ctx.setFillStyle('#6d3c1f')
-    ctx.fillText(this.money, canvasw / 2 - 20 , textY)
+    ctx.fillText(this.money, canvasw / 2 - 25 , textY)
 
     //绘制元
     ctx.setFontSize(20)
     ctx.setFillStyle('#6d3c1f')
-    ctx.fillText("元", canvasw / 2 + 10, textY)
+    ctx.fillText("元", canvasw / 2 + 15, textY)
 
 
     //绘制找人码
@@ -211,14 +211,10 @@ export default class poster extends wx.page {
     //绘制二维码提示语
     ctx.setFontSize(10);
     ctx.setFillStyle('#F6F6F6')
-    ctx.fillText("- 长按识别小程序二维码 -", contentX + 85, contentY + 75);
+    ctx.fillText("- 长按识别小程序二维码 -", contentX + canvasw / 5, contentY + canvash / 11 - 10);
 
     //绘制小程序二维码
-    if(this.posterSrc == '') {
-        ctx.drawImage("../assets/images/mini.jpg", contentX + 80, contentY + 85 , canvasw - 250, canvash - 480)
-    }else {
-        ctx.drawImage(this.posterSrc, contentX + 80, contentY + 85 , canvasw - 250, canvash - 480)
-    }
+    ctx.drawImage("../assets/images/mini.jpg", contentX + canvasw / 5 , contentY + canvash / 11 , 120, 120)
 
     ctx.draw(true)
 
