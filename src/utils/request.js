@@ -9,9 +9,17 @@ function getServerUrl() {
 }
 
 function request(route, method, data, success, fail, other) {
+	var timestamp = Date.parse(new Date());
+	timestamp = timestamp / 1000;
+	if(timestamp - wx.getStorageSync(server + 'expire') >= (24*3600 - 300)) {
+		//sessionToken过期
+		wx.setStorageSync(server + 'token', '');
+	}
+
 	accessToken = wx.getStorageSync(server + 'token');
 	let args = arguments;
 	console.log('accessToken:' + accessToken);
+
 	if (accessToken == '') {
 		new Login().init();//登录
 		var timer= setTimeout(() => {

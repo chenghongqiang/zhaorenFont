@@ -30,7 +30,12 @@ pt.wechatapplogin = function (parm) {
 				console.log('调用后端UserLogin接口成功', resRes);
 				resRes.data = parseData(resRes.data);
 				if (resRes.data.data.thirdSessionKey) {
+					var timestamp = Date.parse(new Date());
+					timestamp = timestamp / 1000;
+
+					wx.setStorageSync(server + 'expire', timestamp);
 					wx.setStorageSync(server + 'token', resRes.data.data.thirdSessionKey);
+
 				} else {
 					loginSts = !1;
 					console.log('登录失败');
